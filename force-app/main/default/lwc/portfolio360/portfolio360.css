@@ -1,6 +1,6 @@
 :host {
-    --accent: #0b5cab;
-    --accent-2: #1589ee;
+    --accent: #1d1d1f;
+    --accent-2: #3a3a3c;
     --border: #e2e8f0;
     display: block;
 }
@@ -30,7 +30,7 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--border);
     border-radius: 999px;
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.07);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
 }
 
 .tabbar::-webkit-scrollbar {
@@ -59,7 +59,7 @@
 .tab.active {
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(11, 92, 171, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .panel {

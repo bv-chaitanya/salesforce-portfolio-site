@@ -5,7 +5,7 @@
     "brandingSetType": "APP",
     "definitionName": "talon-template-byo:branding",
     "values": {
-      "BackgroundColor": "#f6f8fb",
+      "BackgroundColor": "#f5f5f7",
       "BaseFont": "var(--dxp-g-root-font-family)",
       "BaseFontSize": "1rem",
       "BodyFont": "var(--dxp-s-html-font-family)",

@@ -1,6 +1,5 @@
 /*
- * Global site styles — soft near-white backdrop with faint pastel washes.
- * Color stays in the background so the glass layers above read white.
+ * Global site styles — clean neutral canvas; the glass carries the design.
  */
 html,
 body {
@@ -8,7 +7,7 @@ body {
 }
 
 html {
-    background: #f4f7fb;
+    background: #f5f5f7;
     scroll-behavior: smooth;
 }
 
@@ -17,12 +16,7 @@ body {
     min-height: 100%;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    background:
-        radial-gradient(44rem 30rem at 12% -6%, rgba(132, 174, 245, 0.12), transparent 60%),
-        radial-gradient(38rem 28rem at 92% 8%, rgba(186, 170, 250, 0.1), transparent 60%),
-        radial-gradient(46rem 32rem at -8% 50%, rgba(125, 200, 247, 0.09), transparent 60%),
-        radial-gradient(42rem 30rem at 106% 78%, rgba(150, 165, 248, 0.09), transparent 60%),
-        linear-gradient(180deg, #f7f9fd 0%, #f3f6fb 100%);
+    background: linear-gradient(180deg, #fafafc 0%, #f5f5f7 55%, #f1f1f4 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

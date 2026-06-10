@@ -31,9 +31,9 @@
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.01em;
-    color: #16233a;
+    color: #1d1d1f;
     box-shadow:
-        0 8px 24px rgba(23, 43, 77, 0.16),
+        0 8px 24px rgba(0, 0, 0, 0.16),
         inset 0 1px 0 rgba(255, 255, 255, 1);
     cursor: pointer;
     white-space: nowrap;
@@ -57,7 +57,7 @@
 }
 
 .name-chip:focus-visible {
-    outline: 2px solid #0b5cab;
+    outline: 2px solid #1d1d1f;
     outline-offset: 2px;
 }
 
@@ -77,8 +77,8 @@
     -webkit-backdrop-filter: blur(16px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.75);
     box-shadow:
-        0 14px 44px rgba(15, 23, 42, 0.2),
-        0 2px 8px rgba(15, 23, 42, 0.08),
+        0 14px 44px rgba(0, 0, 0, 0.2),
+        0 2px 8px rgba(0, 0, 0, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.95),
         inset 0 -1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -96,27 +96,27 @@
     border-radius: 999px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #2b3a51;
+    color: #3a3a3c;
     cursor: pointer;
     transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
     white-space: nowrap;
 }
 
 .nav-btn:hover {
-    background: rgba(11, 92, 171, 0.1);
-    color: #0b5cab;
+    background: rgba(0, 0, 0, 0.06);
+    color: #1d1d1f;
 }
 
 .nav-btn.active {
-    background: #0b5cab;
+    background: #1d1d1f;
     color: #ffffff;
     box-shadow:
-        0 4px 14px rgba(11, 92, 171, 0.45),
+        0 4px 14px rgba(0, 0, 0, 0.28),
         inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 .nav-btn:focus-visible {
-    outline: 2px solid #0b5cab;
+    outline: 2px solid #1d1d1f;
     outline-offset: 2px;
 }
 
