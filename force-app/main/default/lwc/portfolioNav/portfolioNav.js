@@ -52,7 +52,7 @@ export default class PortfolioNav extends LightningElement {
                     this.activeId = hash;
                     this.lastTabId = hash;
                 }
-            } catch (e) {
+            } catch {
                 // deep links are a nice-to-have
             }
             this.boundScroll = () => this.queueScrollUpdate();
@@ -83,6 +83,7 @@ export default class PortfolioNav extends LightningElement {
         if (!this.indicatorReady) {
             this.indicatorReady = true;
             // first paint lands instantly; animate from the second change on
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
             requestAnimationFrame(() => indicator.classList.add('animate'));
         }
         if (dock.scrollWidth > dock.clientWidth) {
@@ -111,6 +112,8 @@ export default class PortfolioNav extends LightningElement {
     }
 
     scrollTo(selector) {
+        // sibling components on the LWR page — reachable only via document
+        // eslint-disable-next-line @lwc/lwc/no-document-query
         const target = document.querySelector(selector);
         if (target) {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -122,6 +125,7 @@ export default class PortfolioNav extends LightningElement {
             return;
         }
         this.scrollTicking = true;
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
         requestAnimationFrame(() => {
             this.scrollTicking = false;
             this.onScrollFrame();
@@ -129,6 +133,7 @@ export default class PortfolioNav extends LightningElement {
     }
 
     onScrollFrame() {
+        // eslint-disable-next-line @lwc/lwc/no-document-query
         const hero = document.querySelector(HERO_SELECTOR);
         if (!hero) {
             return;

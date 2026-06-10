@@ -13,7 +13,7 @@ export default class Portfolio360 extends LightningElement {
             if (TABS.includes(hash)) {
                 this.activeTab = hash;
             }
-        } catch (e) {
+        } catch {
             // hash routing is a nice-to-have; never break rendering over it
         }
         this.boundNavigate = (event) => this.handleNavigate(event);
@@ -36,7 +36,7 @@ export default class Portfolio360 extends LightningElement {
             this.activeTab = tabId;
             try {
                 window.history.replaceState(null, '', `#${tabId}`);
-            } catch (e) {
+            } catch {
                 // ignore — see above
             }
         };
