@@ -10,6 +10,7 @@
 }
 
 .panel {
+    min-height: calc(100vh - 14rem);
     animation: fade-in 0.25s ease;
 }
 

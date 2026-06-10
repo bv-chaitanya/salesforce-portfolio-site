@@ -135,8 +135,10 @@ export default class PortfolioNav extends LightningElement {
         }
         const rect = hero.getBoundingClientRect();
         this.showName = rect.top < -NAME_REVEAL_OFFSET_PX;
-        // hero dominating the viewport = "About"; otherwise the open tab
-        if (rect.bottom > window.innerHeight * 0.45) {
+        // "About" only when genuinely back at the top — short panels can't
+        // scroll the hero fully away, and hero-visibility checks stole the
+        // active state right back after a tab click.
+        if (window.scrollY < 140) {
             this.activeId = 'about';
         } else if (this.activeId === 'about') {
             this.activeId = this.lastTabId;
