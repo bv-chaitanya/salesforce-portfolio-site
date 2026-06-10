@@ -99,6 +99,32 @@ describe('c-portfolio360', () => {
         expect(visibleTabs(element)).toEqual(['skills']);
     });
 
+    it('advances to the next page when scrolling down at the page bottom', async () => {
+        const element = create();
+        const wrap = element.shadowRoot.querySelector('.wrap');
+        Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
+
+        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['skills']);
+    });
+
+    it('does not advance on vertical scroll mid-page', async () => {
+        const element = create();
+        const wrap = element.shadowRoot.querySelector('.wrap');
+        Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 3000, configurable: true });
+
+        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['experience']);
+    });
+
     it('stops listening after disconnect', async () => {
         const element = create();
         document.body.removeChild(element);

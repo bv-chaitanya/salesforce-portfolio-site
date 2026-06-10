@@ -63,8 +63,9 @@ plus `portfolioItems` for the dynamic sections) each with loading/empty/error st
 pager**: `portfolio360` shows ONE page at a time (height = content, no reserved-viewport
 gaps) and switches with a horizontal slide (entering page slides from the direction of
 travel). Pages flip via dock clicks, horizontal trackpad scroll (dominant deltaX,
-cooldown-throttled), or touch swipe (`touch-action: pan-y` keeps vertical scroll
-native). It broadcasts `portfolio360tabinview` (+ hash sync) on every change;
+cooldown-throttled), touch swipe (`touch-action: pan-y` keeps vertical scroll native),
+or **vertical scroll past the page bottom** (wheel or upward swipe at the end advances
+to the next tab in order — going back is horizontal/dock only). It broadcasts `portfolio360tabinview` (+ hash sync) on every change;
 `portfolioProfileSwitcher` — floating LEFT glass rail of circular avatar tabs, shown
 only when 2+ profiles are active; clicking broadcasts `portfolioprofilechange` window
 events and every profile-aware component (hero, nav chip, all sections) re-queries.

@@ -80,16 +80,25 @@ export default class Portfolio360 extends LightningElement {
         }
     }
 
-    // horizontal trackpad/mouse-tilt scrolling flips pages (vertical untouched)
+    // horizontal trackpad/mouse-tilt scrolling flips pages; vertical scrolling
+    // past the END of a page advances to the next tab in order
     handleWheel(event) {
         const now = Date.now();
         if (now - this.lastWheelAt < WHEEL_COOLDOWN_MS) {
             return;
         }
-        if (Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.5
-            && Math.abs(event.deltaX) > WHEEL_MIN_DELTA) {
+        const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.5
+            && Math.abs(event.deltaX) > WHEEL_MIN_DELTA;
+        if (horizontal) {
             this.lastWheelAt = now;
             this.step(event.deltaX > 0 ? 1 : -1);
+            return;
+        }
+        const downward = Math.abs(event.deltaY) > Math.abs(event.deltaX)
+            && event.deltaY > WHEEL_MIN_DELTA;
+        if (downward && this.isAtPageBottom()) {
+            this.lastWheelAt = now;
+            this.step(1);
         }
     }
 
@@ -110,7 +119,16 @@ export default class Portfolio360 extends LightningElement {
         const deltaY = touch.clientY - this.touchStartY;
         if (Math.abs(deltaX) > SWIPE_MIN_PX && Math.abs(deltaX) > Math.abs(deltaY)) {
             this.step(deltaX < 0 ? 1 : -1);
+        } else if (deltaY < -SWIPE_MIN_PX && Math.abs(deltaY) > Math.abs(deltaX)
+            && this.isAtPageBottom()) {
+            // swiping up at the end of a page moves to the next one
+            this.step(1);
         }
+    }
+
+    isAtPageBottom() {
+        const doc = document.documentElement;
+        return window.innerHeight + window.scrollY >= doc.scrollHeight - 16;
     }
 
     ensureTopVisible() {
