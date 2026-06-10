@@ -1,159 +1,167 @@
 import { LightningElement, wire } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
-import { updateRecord, deleteRecord } from 'lightning/uiRecordApi';
+import { deleteRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import { NavigationMixin } from 'lightning/navigation';
+import LightningConfirm from 'lightning/confirm';
 import getRecords from '@salesforce/apex/PortfolioAdminController.getRecords';
-
-const ROW_ACTIONS = [
-    { label: 'Open', name: 'open' },
-    { label: 'Delete', name: 'delete' }
-];
-
-const ORDER_COL = { label: 'Order', fieldName: 'Display_Order__c', type: 'number', editable: true, initialWidth: 90 };
-const ACTIVE_COL = { label: 'Active', fieldName: 'Is_Active__c', type: 'boolean', editable: true, initialWidth: 90 };
-const ACTION_COL = { type: 'action', typeAttributes: { rowActions: ROW_ACTIONS } };
 
 const OBJECTS = [
     {
         api: 'Portfolio_Profile__c', label: 'Profile',
-        columns: [
-            { label: 'Full Name', fieldName: 'Name', editable: true },
-            { label: 'Headline', fieldName: 'Headline__c', editable: true },
-            { label: 'Email', fieldName: 'Email__c', type: 'email', editable: true },
-            { label: 'Location', fieldName: 'Location__c', editable: true },
-            { label: 'Photo URL', fieldName: 'Photo_URL__c', type: 'url', editable: true }
-        ]
+        fields: ['Name', 'Headline__c', 'Summary__c', 'Email__c', 'Phone__c', 'Location__c',
+            'LinkedIn_URL__c', 'Photo_URL__c', 'Display_Order__c', 'Is_Active__c']
     },
     {
         api: 'Experience__c', label: 'Experience',
-        columns: [
-            { label: 'Job Title', fieldName: 'Name', editable: true },
-            { label: 'Company', fieldName: 'Company__c', editable: true },
-            { label: 'Start', fieldName: 'Start_Date__c', type: 'date-local', editable: true },
-            { label: 'End', fieldName: 'End_Date__c', type: 'date-local', editable: true },
-            { label: 'Current', fieldName: 'Is_Current__c', type: 'boolean', editable: true, initialWidth: 95 }
-        ]
+        fields: ['Name', 'Company__c', 'Location__c', 'Start_Date__c', 'End_Date__c',
+            'Is_Current__c', 'Display_Order__c', 'Is_Active__c']
     },
     {
         api: 'Project__c', label: 'Projects',
-        columns: [
-            { label: 'Project', fieldName: 'Name', editable: true },
-            { label: 'Client', fieldName: 'Client__c', editable: true, initialWidth: 110 },
-            { label: 'Impact', fieldName: 'Impact__c', editable: true },
-            { label: 'Tech Stack', fieldName: 'Tech_Stack__c', editable: true }
-        ]
+        fields: ['Name', 'Job__c', 'Client__c', 'Description__c', 'Tech_Stack__c', 'Impact__c',
+            'Project_URL__c', 'Display_Order__c', 'Is_Active__c']
     },
     {
         api: 'Skill_Group__c', label: 'Skills',
-        columns: [
-            { label: 'Category', fieldName: 'Name', editable: true, initialWidth: 220 },
-            { label: 'Skills (semicolon-separated)', fieldName: 'Skills__c', editable: true }
-        ]
+        fields: ['Name', 'Skills__c', 'Display_Order__c', 'Is_Active__c']
     },
     {
         api: 'Certification__c', label: 'Certifications',
-        columns: [
-            { label: 'Certification', fieldName: 'Name', editable: true },
-            { label: 'Issuer', fieldName: 'Issuer__c', editable: true },
-            { label: 'Status', fieldName: 'Status__c', editable: true, initialWidth: 110 },
-            { label: 'Credential URL', fieldName: 'Credential_URL__c', type: 'url', editable: true }
-        ]
+        fields: ['Name', 'Issuer__c', 'Status__c', 'Credential_URL__c', 'Display_Order__c', 'Is_Active__c']
     },
     {
         api: 'Education__c', label: 'Education',
-        columns: [
-            { label: 'Degree', fieldName: 'Name', editable: true },
-            { label: 'Institution', fieldName: 'Institution__c', editable: true },
-            { label: 'Location', fieldName: 'Location__c', editable: true }
-        ]
+        fields: ['Name', 'Institution__c', 'Location__c', 'Display_Order__c', 'Is_Active__c']
     },
     {
         api: 'Award__c', label: 'Awards',
-        columns: [
-            { label: 'Award', fieldName: 'Name', editable: true },
-            { label: 'Year', fieldName: 'Year__c', editable: true, initialWidth: 90 },
-            { label: 'Description', fieldName: 'Description__c', editable: true }
-        ]
+        fields: ['Name', 'Year__c', 'Description__c', 'Display_Order__c', 'Is_Active__c']
     }
 ];
 
-export default class PortfolioAdmin extends NavigationMixin(LightningElement) {
-    objectTabs = OBJECTS;
+export default class PortfolioAdmin extends LightningElement {
     activeObject = OBJECTS[0].api;
-    draftValues = [];
-    wireResult;
-    rows;
+    records;
     loadError;
+    selectedId;
+    isCreating = false;
+    wireResult;
 
     @wire(getRecords, { objectApiName: '$activeObject' })
     wiredRows(result) {
         this.wireResult = result;
         if (result.data) {
-            this.rows = result.data;
+            this.records = result.data;
             this.loadError = undefined;
+            const stillThere = this.selectedId
+                && this.records.some((record) => record.Id === this.selectedId);
+            if (!this.isCreating && !stillThere) {
+                this.selectedId = this.records.length ? this.records[0].Id : undefined;
+            }
         } else if (result.error) {
             this.loadError = this.toMessage(result.error);
-            this.rows = undefined;
+            this.records = undefined;
         }
     }
 
-    get columns() {
-        const config = OBJECTS.find((object) => object.api === this.activeObject);
-        return [...config.columns, ORDER_COL, ACTIVE_COL, ACTION_COL];
+    get objectConfig() {
+        return OBJECTS.find((object) => object.api === this.activeObject);
+    }
+
+    get formFields() {
+        return this.objectConfig.fields;
+    }
+
+    get listItems() {
+        return (this.records || []).map((record) => ({
+            id: record.Id,
+            name: record.Name,
+            inactive: record.Is_Active__c === false,
+            cls: record.Id === this.selectedId
+                ? 'rec slds-p-around_x-small slds-grid slds-grid_align-spread selected'
+                : 'rec slds-p-around_x-small slds-grid slds-grid_align-spread'
+        }));
     }
 
     get isLoading() {
-        return !this.rows && !this.loadError;
+        return !this.records && !this.loadError;
     }
 
-    get rowCountLabel() {
-        return this.rows ? `${this.rows.length} record(s) — inline edit, then Save` : '';
+    get hasRecords() {
+        return Boolean(this.records && this.records.length);
+    }
+
+    get showEditForm() {
+        return !this.isCreating && Boolean(this.selectedId);
+    }
+
+    get showEmptyState() {
+        return !this.isCreating && !this.selectedId && !this.isLoading && !this.loadError;
+    }
+
+    get formHeading() {
+        if (this.isCreating) {
+            return `New ${this.objectConfig.label} record`;
+        }
+        const selected = (this.records || []).find((record) => record.Id === this.selectedId);
+        return selected ? `Edit: ${selected.Name}` : '';
     }
 
     handleTabActive(event) {
         this.activeObject = event.target.value;
-        this.draftValues = [];
+        this.selectedId = undefined;
+        this.isCreating = false;
+    }
+
+    handleSelect(event) {
+        this.selectedId = event.currentTarget.dataset.id;
+        this.isCreating = false;
     }
 
     handleNew() {
-        this[NavigationMixin.Navigate]({
-            type: 'standard__objectPage',
-            attributes: { objectApiName: this.activeObject, actionName: 'new' }
-        });
+        this.isCreating = true;
+        this.selectedId = undefined;
     }
 
-    handleRowAction(event) {
-        const action = event.detail.action.name;
-        const row = event.detail.row;
-        if (action === 'open') {
-            this[NavigationMixin.Navigate]({
-                type: 'standard__recordPage',
-                attributes: { recordId: row.Id, actionName: 'view' }
-            });
-        } else if (action === 'delete') {
-            deleteRecord(row.Id)
-                .then(() => {
-                    this.toast('Deleted', `"${row.Name}" removed`, 'success');
-                    return refreshApex(this.wireResult);
-                })
-                .catch((error) => this.toast('Delete failed', this.toMessage(error), 'error'));
+    handleCancelCreate() {
+        this.isCreating = false;
+        this.selectedId = this.records && this.records.length ? this.records[0].Id : undefined;
+    }
+
+    handleSuccess(event) {
+        const id = event.detail.id;
+        const verb = this.isCreating ? 'created' : 'saved';
+        this.isCreating = false;
+        this.selectedId = id;
+        this.toast('Success', `Record ${verb}. The public site reflects it on next load.`, 'success');
+        return refreshApex(this.wireResult);
+    }
+
+    handleError(event) {
+        const detail = event.detail || {};
+        this.toast('Save failed', detail.detail || detail.message || 'See field errors below', 'error');
+    }
+
+    async handleDelete() {
+        const selected = (this.records || []).find((record) => record.Id === this.selectedId);
+        if (!selected) {
+            return;
         }
-    }
-
-    handleSave(event) {
-        const drafts = event.detail.draftValues;
-        Promise.all(drafts.map((draft) => updateRecord({ fields: draft })))
+        const confirmed = await LightningConfirm.open({
+            message: `Delete "${selected.Name}" permanently? Unchecking Active hides it without deleting.`,
+            label: 'Delete record',
+            theme: 'warning'
+        });
+        if (!confirmed) {
+            return;
+        }
+        deleteRecord(selected.Id)
             .then(() => {
-                this.draftValues = [];
-                this.toast('Saved', `${drafts.length} record(s) updated`, 'success');
+                this.selectedId = undefined;
+                this.toast('Deleted', `"${selected.Name}" removed`, 'success');
                 return refreshApex(this.wireResult);
             })
-            .catch((error) => this.toast('Save failed', this.toMessage(error), 'error'));
-    }
-
-    handleCancel() {
-        this.draftValues = [];
+            .catch((error) => this.toast('Delete failed', this.toMessage(error), 'error'));
     }
 
     toast(title, message, variant) {
@@ -164,9 +172,6 @@ export default class PortfolioAdmin extends NavigationMixin(LightningElement) {
         if (error && error.body) {
             if (Array.isArray(error.body)) {
                 return error.body.map((item) => item.message).join(', ');
-            }
-            if (error.body.output && Array.isArray(error.body.output.errors) && error.body.output.errors.length) {
-                return error.body.output.errors.map((item) => item.message).join(', ');
             }
             if (error.body.message) {
                 return error.body.message;

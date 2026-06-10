@@ -1,0 +1,30 @@
+.rec-list {
+    list-style: none;
+    margin: 0;
+    max-height: 28rem;
+    overflow-y: auto;
+}
+
+.rec {
+    cursor: pointer;
+    border-radius: 0.25rem;
+    align-items: center;
+}
+
+.rec:hover {
+    background: #f3f3f3;
+}
+
+.rec.selected {
+    background: #eef4ff;
+    box-shadow: inset 2px 0 0 #0176d3;
+}
+
+.rec-name {
+    max-width: 70%;
+}
+
+/* tighter rich-text editors inside the form */
+.field-col {
+    min-width: 0;
+}

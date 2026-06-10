@@ -2,22 +2,20 @@
     <lightning-card title="Portfolio Content Manager" icon-name="custom:custom18">
         <div class="slds-p-horizontal_medium slds-p-bottom_medium">
             <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">
-                Everything here drives the public site. Uncheck <strong>Active</strong> to hide
-                something instantly; edit inline and Save; use Open for long text and rich text fields.
+                Everything here drives the public site. Pick a record on the left, edit with
+                pre-loaded values on the right. Uncheck <strong>Active</strong> to hide something
+                without deleting it.
             </p>
-            <lightning-tabset variant="scoped" active-tab-value={activeObject} onactive={handleTabActive}>
-                <lightning-tab label="Profile" value="Portfolio_Profile__c"></lightning-tab>
-                <lightning-tab label="Experience" value="Experience__c"></lightning-tab>
-                <lightning-tab label="Projects" value="Project__c"></lightning-tab>
-                <lightning-tab label="Skills" value="Skill_Group__c"></lightning-tab>
-                <lightning-tab label="Certifications" value="Certification__c"></lightning-tab>
-                <lightning-tab label="Education" value="Education__c"></lightning-tab>
-                <lightning-tab label="Awards" value="Award__c"></lightning-tab>
+            <lightning-tabset variant="scoped" active-tab-value={activeObject}>
+                <lightning-tab label="Profile" value="Portfolio_Profile__c" onactive={handleTabActive}></lightning-tab>
+                <lightning-tab label="Experience" value="Experience__c" onactive={handleTabActive}></lightning-tab>
+                <lightning-tab label="Projects" value="Project__c" onactive={handleTabActive}></lightning-tab>
+                <lightning-tab label="Skills" value="Skill_Group__c" onactive={handleTabActive}></lightning-tab>
+                <lightning-tab label="Certifications" value="Certification__c" onactive={handleTabActive}></lightning-tab>
+                <lightning-tab label="Education" value="Education__c" onactive={handleTabActive}></lightning-tab>
+                <lightning-tab label="Awards" value="Award__c" onactive={handleTabActive}></lightning-tab>
             </lightning-tabset>
-            <div class="slds-grid slds-grid_align-spread slds-m-vertical_x-small">
-                <p class="slds-text-body_small slds-text-color_weak slds-align-middle">{rowCountLabel}</p>
-                <lightning-button label="New" icon-name="utility:add" onclick={handleNew}></lightning-button>
-            </div>
+
             <template lwc:if={isLoading}>
                 <div class="slds-is-relative slds-p-around_large">
                     <lightning-spinner alternative-text="Loading records" size="small"></lightning-spinner>
@@ -27,17 +25,108 @@
                 <p class="slds-text-color_error slds-p-around_small">{loadError}</p>
             </template>
             <template lwc:else>
-                <lightning-datatable
-                    key-field="Id"
-                    data={rows}
-                    columns={columns}
-                    draft-values={draftValues}
-                    hide-checkbox-column
-                    show-row-number-column
-                    onsave={handleSave}
-                    oncancel={handleCancel}
-                    onrowaction={handleRowAction}
-                ></lightning-datatable>
+                <div class="slds-grid slds-gutters slds-m-top_small slds-wrap">
+                    <!-- left: record picker -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12">
+                        <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                            <h2 class="slds-text-title_caps slds-align-middle">Records</h2>
+                            <lightning-button
+                                label="New"
+                                icon-name="utility:add"
+                                size="small"
+                                onclick={handleNew}
+                            ></lightning-button>
+                        </div>
+                        <template lwc:if={hasRecords}>
+                            <ul class="rec-list slds-box slds-box_xx-small slds-p-around_xx-small">
+                                <template for:each={listItems} for:item="item">
+                                    <li
+                                        key={item.id}
+                                        class={item.cls}
+                                        data-id={item.id}
+                                        onclick={handleSelect}
+                                    >
+                                        <span class="rec-name slds-truncate">{item.name}</span>
+                                        <lightning-badge
+                                            lwc:if={item.inactive}
+                                            label="Inactive"
+                                            class="slds-badge_inverse"
+                                        ></lightning-badge>
+                                    </li>
+                                </template>
+                            </ul>
+                        </template>
+                        <template lwc:else>
+                            <p class="slds-text-color_weak slds-p-around_small">
+                                No records yet — click New.
+                            </p>
+                        </template>
+                    </div>
+
+                    <!-- right: pre-loaded edit form / create form -->
+                    <div class="slds-col slds-size_1-of-1 slds-medium-size_8-of-12">
+                        <template lwc:if={showEditForm}>
+                            <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                                <h2 class="slds-text-title_caps slds-align-middle">{formHeading}</h2>
+                                <lightning-button
+                                    label="Delete"
+                                    variant="destructive-text"
+                                    icon-name="utility:delete"
+                                    size="small"
+                                    onclick={handleDelete}
+                                ></lightning-button>
+                            </div>
+                            <lightning-record-edit-form
+                                object-api-name={activeObject}
+                                record-id={selectedId}
+                                onsuccess={handleSuccess}
+                                onerror={handleError}
+                            >
+                                <lightning-messages></lightning-messages>
+                                <div class="slds-grid slds-wrap slds-gutters_x-small">
+                                    <template for:each={formFields} for:item="field">
+                                        <div key={field} class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 field-col">
+                                            <lightning-input-field field-name={field}></lightning-input-field>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="slds-m-top_small">
+                                    <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                                </div>
+                            </lightning-record-edit-form>
+                        </template>
+                        <template lwc:elseif={isCreating}>
+                            <h2 class="slds-text-title_caps slds-m-bottom_x-small">{formHeading}</h2>
+                            <lightning-record-edit-form
+                                object-api-name={activeObject}
+                                onsuccess={handleSuccess}
+                                onerror={handleError}
+                            >
+                                <lightning-messages></lightning-messages>
+                                <div class="slds-grid slds-wrap slds-gutters_x-small">
+                                    <template for:each={formFields} for:item="field">
+                                        <div key={field} class="slds-col slds-size_1-of-1 slds-medium-size_6-of-12 field-col">
+                                            <lightning-input-field field-name={field}></lightning-input-field>
+                                        </div>
+                                    </template>
+                                </div>
+                                <div class="slds-m-top_small">
+                                    <lightning-button variant="brand" type="submit" label="Create"></lightning-button>
+                                    <lightning-button
+                                        class="slds-m-left_x-small"
+                                        label="Cancel"
+                                        onclick={handleCancelCreate}
+                                    ></lightning-button>
+                                </div>
+                            </lightning-record-edit-form>
+                        </template>
+                        <template lwc:elseif={showEmptyState}>
+                            <p class="slds-text-color_weak slds-p-around_medium">
+                                Select a record on the left, or click New.
+                            </p>
+                        </template>
+                    </div>
+                </div>
             </template>
         </div>
     </lightning-card>
