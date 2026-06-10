@@ -40,20 +40,9 @@ export default class Portfolio360 extends LightningElement {
                 // ignore — see above
             }
         };
-        // View Transitions crossfade where supported; plain swap elsewhere
-        try {
-            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            if (typeof document.startViewTransition === 'function' && !reduceMotion) {
-                document.startViewTransition(() => {
-                    apply();
-                    // give LWC a frame to flush the re-render before the snapshot
-                    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
-                });
-                return;
-            }
-        } catch (e) {
-            // fall through to plain swap
-        }
+        // NOTE: no document.startViewTransition here — rendering pauses during
+        // its update callback, so waiting on rAF deadlocks (page freezes ~4s per
+        // click). The CSS panel fade provides the crossfade instead.
         apply();
     }
 
