@@ -155,7 +155,8 @@ Unchecking `Is_Active__c` hides a record from the site instantly.
     `https://chap-dev-ed.my.site.com/sfsites/c/resource/profilePhoto` — same origin, no
     CSP concerns. OG link-preview meta tags live in headMarkup. **The image file is
     deliberately NOT in the repo** (gitignored, scrubbed from history — repo is public);
-    on org rebuild, upload a local photo as the `profilePhoto` static resource manually.
+    on org rebuild, upload a local photo as the `profilePhoto` static resource manually
+    (same for `favicon` — a 180px PNG of the photo, referenced from headMarkup).
 
 ## Disaster recovery (org loss)
 

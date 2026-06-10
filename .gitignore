@@ -19,3 +19,4 @@ npm-debug.log*
 
 # Profile photo lives ONLY in the org (deployed static resource) — never in the public repo
 force-app/main/default/staticresources/profilePhoto.*
+force-app/main/default/staticresources/favicon.*
