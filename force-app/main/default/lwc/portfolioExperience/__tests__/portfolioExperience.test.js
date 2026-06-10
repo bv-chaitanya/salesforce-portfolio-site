@@ -3,6 +3,15 @@ import PortfolioExperience from 'c/portfolioExperience';
 import getExperiences from '@salesforce/apex/PortfolioController.getExperiences';
 
 jest.mock(
+    '@salesforce/apex/PortfolioController.getProfiles',
+    () => {
+        const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');
+        return { default: createApexTestWireAdapter(jest.fn()) };
+    },
+    { virtual: true }
+);
+
+jest.mock(
     '@salesforce/apex/PortfolioController.getExperiences',
     () => {
         const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');

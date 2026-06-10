@@ -1,11 +1,25 @@
 import { LightningElement, api, wire } from 'lwc';
 import getCertifications from '@salesforce/apex/PortfolioController.getCertifications';
+import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
 
 export default class PortfolioCertifications extends LightningElement {
     @api hideTitle = false;
     certifications = [];
     state = 'loading';
     profileId = null;
+
+    profilesKnownEmpty = false;
+
+    @wire(getProfiles)
+    wiredProfilesGuard({ data }) {
+        if (data) {
+            this.profilesKnownEmpty = data.length === 0;
+        }
+    }
+
+    get siteHasProfiles() {
+        return !this.profilesKnownEmpty;
+    }
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

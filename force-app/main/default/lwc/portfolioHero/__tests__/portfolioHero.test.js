@@ -69,12 +69,14 @@ describe('c-portfolio-hero', () => {
         expect(element.shadowRoot.querySelector('.avatar-initials').textContent).toBe('TP');
     });
 
-    it('shows the empty state when no profile exists', async () => {
+    it('shows the single page-level state when no profile is active', async () => {
         const element = create();
         getProfile.emit(null);
         await flush();
 
-        expect(element.shadowRoot.querySelector('.state').textContent).toBe('No profile published yet.');
+        expect(element.shadowRoot.querySelector('.empty-title').textContent).toBe('No active profiles');
+        expect(element.shadowRoot.querySelector('.empty-sub').textContent)
+            .toContain('currently unpublished');
     });
 
     it('shows the error state when the wire fails', async () => {

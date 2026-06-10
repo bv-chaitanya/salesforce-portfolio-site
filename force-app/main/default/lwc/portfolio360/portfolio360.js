@@ -1,4 +1,5 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, wire } from 'lwc';
+import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
 
 // Fired by c-portfolio-nav (the floating dock) — the single navigation surface.
 const NAVIGATE_EVENT = 'portfolio360navigate';
@@ -6,6 +7,19 @@ const TABS = ['experience', 'skills', 'certifications', 'education'];
 
 export default class Portfolio360 extends LightningElement {
     activeTab = TABS[0];
+
+    profilesKnownEmpty = false;
+
+    @wire(getProfiles)
+    wiredProfilesGuard({ data }) {
+        if (data) {
+            this.profilesKnownEmpty = data.length === 0;
+        }
+    }
+
+    get siteHasProfiles() {
+        return !this.profilesKnownEmpty;
+    }
 
     connectedCallback() {
         try {

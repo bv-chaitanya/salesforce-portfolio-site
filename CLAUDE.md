@@ -48,8 +48,9 @@ convention as `Project__c.Tech_Stack__c`), `Certification__c`, `Education__c`, `
 typed inner DTOs, active-only + Display_Order ordering, parent-child subquery for
 projects. All section methods take `profileId`: null resolves to the FIRST active
 profile; explicit ids are honored only when that profile is active; **no active
-profiles = everything returns empty (master kill switch — uncheck Active on all
-profiles to blank the site)**. `getProfiles()` feeds the switcher. **`Phone__c` is never queried — privacy by design on a public site.**
+profiles = master kill switch: the hero shows ONE "No active profiles" glass card
+and the dock, tabs, and every section hide entirely** (components share the
+cacheable `getProfiles` wire to detect it). `getProfiles()` also feeds the switcher. **`Phone__c` is never queried — privacy by design on a public site.**
 `PortfolioAdminController` — internal admin reads (ALL records incl. inactive),
 object allowlist, never granted to the guest profile.
 

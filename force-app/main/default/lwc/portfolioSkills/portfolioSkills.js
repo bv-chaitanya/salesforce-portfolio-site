@@ -1,11 +1,25 @@
 import { LightningElement, api, wire } from 'lwc';
 import getSkillGroups from '@salesforce/apex/PortfolioController.getSkillGroups';
+import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
 
 export default class PortfolioSkills extends LightningElement {
     @api hideTitle = false;
     groups = [];
     state = 'loading';
     profileId = null;
+
+    profilesKnownEmpty = false;
+
+    @wire(getProfiles)
+    wiredProfilesGuard({ data }) {
+        if (data) {
+            this.profilesKnownEmpty = data.length === 0;
+        }
+    }
+
+    get siteHasProfiles() {
+        return !this.profilesKnownEmpty;
+    }
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

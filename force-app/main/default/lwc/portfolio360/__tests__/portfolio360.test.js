@@ -1,6 +1,16 @@
 import { createElement } from 'lwc';
 import Portfolio360 from 'c/portfolio360';
 
+jest.mock(
+    '@salesforce/apex/PortfolioController.getProfiles',
+    () => {
+        const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');
+        return { default: createApexTestWireAdapter(jest.fn()) };
+    },
+    { virtual: true }
+);
+
+
 const NAVIGATE_EVENT = 'portfolio360navigate';
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 

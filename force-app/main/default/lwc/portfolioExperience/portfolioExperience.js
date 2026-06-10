@@ -1,5 +1,6 @@
 import { LightningElement, api, wire } from 'lwc';
 import getExperiences from '@salesforce/apex/PortfolioController.getExperiences';
+import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
 
 const MONTH_YEAR = { month: 'short', year: 'numeric' };
 
@@ -30,6 +31,19 @@ export default class PortfolioExperience extends LightningElement {
     jobs = [];
     state = 'loading';
     profileId = null;
+
+    profilesKnownEmpty = false;
+
+    @wire(getProfiles)
+    wiredProfilesGuard({ data }) {
+        if (data) {
+            this.profilesKnownEmpty = data.length === 0;
+        }
+    }
+
+    get siteHasProfiles() {
+        return !this.profilesKnownEmpty;
+    }
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

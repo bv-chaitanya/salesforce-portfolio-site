@@ -185,6 +185,24 @@
     z-index: 1;
 }
 
+.empty-band {
+    padding: 4.5rem 1.5rem;
+}
+
+.empty-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #1d1d1f;
+}
+
+.empty-sub {
+    margin: 0.5rem 0 0;
+    font-size: 1rem;
+    color: var(--muted);
+}
+
 .state {
     color: var(--muted);
     font-size: 0.95rem;

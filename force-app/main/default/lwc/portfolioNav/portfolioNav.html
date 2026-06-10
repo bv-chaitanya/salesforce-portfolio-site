@@ -1,5 +1,5 @@
 <template>
-    <div class="stack">
+    <div lwc:if={hasProfile} class="stack">
         <button
             lwc:if={profileName}
             class={nameChipClass}

@@ -40,9 +40,11 @@ describe('c-portfolio-nav', () => {
         setScrollY(0);
     });
 
-    function create() {
+    async function create() {
         const element = createElement('c-portfolio-nav', { is: PortfolioNav });
         document.body.appendChild(element);
+        getProfile.emit({ fullName: 'Test Person' });
+        await flush();
         return element;
     }
 
@@ -50,8 +52,8 @@ describe('c-portfolio-nav', () => {
         return element.shadowRoot.querySelector('.nav-btn.active').textContent;
     }
 
-    it('renders the five dock items with About active by default', () => {
-        const element = create();
+    it('renders the five dock items with About active by default', async () => {
+        const element = await create();
 
         const buttons = element.shadowRoot.querySelectorAll('.nav-btn');
         expect(Array.from(buttons).map((button) => button.textContent)).toEqual([
@@ -60,16 +62,16 @@ describe('c-portfolio-nav', () => {
         expect(activeLabel(element)).toBe('About');
     });
 
-    it('activates the deep-linked tab from the URL hash', () => {
+    it('activates the deep-linked tab from the URL hash', async () => {
         window.location.hash = '#skills';
 
-        const element = create();
+        const element = await create();
 
         expect(activeLabel(element)).toBe('Skills');
     });
 
     it('dispatches the navigate event and activates the clicked tab', async () => {
-        const element = create();
+        const element = await create();
         const handler = jest.fn();
         window.addEventListener(NAVIGATE_EVENT, handler);
 
@@ -83,7 +85,7 @@ describe('c-portfolio-nav', () => {
     });
 
     it('does not dispatch navigate for About', async () => {
-        const element = create();
+        const element = await create();
         const handler = jest.fn();
         window.addEventListener(NAVIGATE_EVENT, handler);
 
@@ -97,9 +99,7 @@ describe('c-portfolio-nav', () => {
     it('shows the name chip and restores the open tab once scrolled away from the hero', async () => {
         addHeroStub({ top: -400, bottom: -100 });
         window.location.hash = '#experience';
-        const element = create();
-        getProfile.emit({ fullName: 'Test Person' });
-        await flush();
+        const element = await create();
 
         setScrollY(500);
         window.dispatchEvent(new CustomEvent('scroll'));
@@ -112,9 +112,7 @@ describe('c-portfolio-nav', () => {
 
     it('returns to About at the top of the page and hides the chip', async () => {
         addHeroStub({ top: 0, bottom: 700 });
-        const element = create();
-        getProfile.emit({ fullName: 'Test Person' });
-        await flush();
+        const element = await create();
 
         setScrollY(0);
         window.dispatchEvent(new CustomEvent('scroll'));
@@ -123,5 +121,22 @@ describe('c-portfolio-nav', () => {
 
         expect(activeLabel(element)).toBe('About');
         expect(element.shadowRoot.querySelector('.name-chip').className).not.toContain('show');
+    });
+});
+
+describe('c-portfolio-nav without an active profile', () => {
+    afterEach(() => {
+        while (document.body.firstChild) {
+            document.body.removeChild(document.body.firstChild);
+        }
+    });
+
+    it('renders nothing when the profile wire returns null', async () => {
+        const element = createElement('c-portfolio-nav', { is: PortfolioNav });
+        document.body.appendChild(element);
+        getProfile.emit(null);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(element.shadowRoot.querySelector('.stack')).toBeNull();
     });
 });

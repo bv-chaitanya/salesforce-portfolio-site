@@ -34,6 +34,11 @@
         </div>
         </template>
         <p lwc:elseif={isError} class="state">Profile is unavailable right now.</p>
-        <p lwc:elseif={isEmpty} class="state">No profile published yet.</p>
+        <template lwc:elseif={isEmpty}>
+            <div class="hero-band empty-band">
+                <h1 class="empty-title">No active profiles</h1>
+                <p class="empty-sub">This portfolio is currently unpublished — check back soon.</p>
+            </div>
+        </template>
     </section>
 </template>

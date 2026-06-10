@@ -3,6 +3,15 @@ import PortfolioSkills from 'c/portfolioSkills';
 import getSkillGroups from '@salesforce/apex/PortfolioController.getSkillGroups';
 
 jest.mock(
+    '@salesforce/apex/PortfolioController.getProfiles',
+    () => {
+        const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');
+        return { default: createApexTestWireAdapter(jest.fn()) };
+    },
+    { virtual: true }
+);
+
+jest.mock(
     '@salesforce/apex/PortfolioController.getSkillGroups',
     () => {
         const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');

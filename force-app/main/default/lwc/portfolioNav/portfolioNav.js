@@ -25,10 +25,13 @@ export default class PortfolioNav extends LightningElement {
     indicatorReady = false;
     scrollTicking = false;
 
+    hasProfile = false;
+
     @wire(getProfile, { profileId: '$profileId' })
     wiredProfile({ data }) {
-        if (data) {
-            this.profileName = data.fullName;
+        if (data !== undefined) {
+            this.hasProfile = Boolean(data);
+            this.profileName = data ? data.fullName : undefined;
         }
     }
 
