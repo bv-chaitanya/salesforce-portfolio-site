@@ -21,7 +21,6 @@ export default class PortfolioNav extends LightningElement {
     lastTabId = 'experience';
     profileName;
     showName = false;
-    initialized = false;
     indicatorReady = false;
     scrollTicking = false;
 
@@ -43,22 +42,22 @@ export default class PortfolioNav extends LightningElement {
         return this.showName ? 'name-chip show' : 'name-chip';
     }
 
-    renderedCallback() {
-        if (!this.initialized) {
-            this.initialized = true;
-            try {
-                const hash = window.location.hash.replace('#', '').toLowerCase();
-                if (TAB_IDS.has(hash)) {
-                    this.activeId = hash;
-                    this.lastTabId = hash;
-                }
-            } catch {
-                // deep links are a nice-to-have
+    connectedCallback() {
+        try {
+            const hash = window.location.hash.replace('#', '').toLowerCase();
+            if (TAB_IDS.has(hash)) {
+                this.activeId = hash;
+                this.lastTabId = hash;
             }
-            this.boundScroll = () => this.queueScrollUpdate();
-            window.addEventListener('scroll', this.boundScroll, { passive: true });
-            this.queueScrollUpdate();
+        } catch {
+            // deep links are a nice-to-have
         }
+        this.boundScroll = () => this.queueScrollUpdate();
+        window.addEventListener('scroll', this.boundScroll, { passive: true });
+        this.queueScrollUpdate();
+    }
+
+    renderedCallback() {
         this.positionIndicator();
     }
 

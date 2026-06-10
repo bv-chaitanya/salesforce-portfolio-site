@@ -13,6 +13,7 @@ Everything renders from records — content updates happen by editing records, n
   helper, and don't `gh auth logout bv-chaitanya` — pushes here depend on it.
 - Deploy directly (no scratch orgs): `sf project deploy start -o portfolio`
 - Run tests: `sf apex run test -o portfolio -l RunLocalTests -w 10 -r human -c`
+- LWC unit tests: `npm run test:unit` (sfdx-lwc-jest; suites for nav, 360, hero, experience, skills)
 - Lint LWC (official Salesforce config): `npm run lint` — keep at 0 problems; the only
   suppressions allowed are the documented `no-document-query`/`no-async-operation` ones
   in `portfolioNav` (cross-component page coordination).

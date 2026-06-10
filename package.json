@@ -2,9 +2,11 @@
   "name": "salesforce-portfolio-site",
   "private": true,
   "version": "1.0.0",
-  "description": "Data-driven portfolio site on Salesforce — Experience Cloud LWR, Apex, LWC",
+  "description": "Data-driven portfolio site on Salesforce \u2014 Experience Cloud LWR, Apex, LWC",
   "scripts": {
-    "lint": "eslint force-app/main/default/lwc"
+    "lint": "eslint force-app/main/default/lwc",
+    "test:unit": "sfdx-lwc-jest",
+    "test:unit:coverage": "sfdx-lwc-jest --coverage"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^3.1.0",
@@ -13,6 +15,7 @@
     "eslint": "^9.29.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-jest": "^28.14.0",
-    "globals": "^15.0.0"
+    "globals": "^15.0.0",
+    "@salesforce/sfdx-lwc-jest": "^7.0.2"
   }
 }
