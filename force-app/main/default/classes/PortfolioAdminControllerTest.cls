@@ -26,7 +26,7 @@ private class PortfolioAdminControllerTest {
 
     @IsTest
     static void supportsEveryPortfolioObject() {
-        for (String objectName : PortfolioAdminController.FIELDS_BY_OBJECT.keySet()) {
+        for (String objectName : PortfolioAdminController.ALLOWED_OBJECTS) {
             List<SObject> rows = PortfolioAdminController.getRecords(objectName);
             Assert.isNotNull(rows, 'Query must succeed for ' + objectName);
         }

@@ -3,41 +3,21 @@ import { refreshApex } from '@salesforce/apex';
 import { deleteRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningConfirm from 'lightning/confirm';
+import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 import getRecords from '@salesforce/apex/PortfolioAdminController.getRecords';
 
 const OBJECTS = [
-    {
-        api: 'Portfolio_Profile__c', label: 'Profile',
-        fields: ['Name', 'Headline__c', 'Summary__c', 'Email__c', 'Phone__c', 'Location__c',
-            'LinkedIn_URL__c', 'Photo_URL__c', 'Display_Order__c', 'Is_Active__c']
-    },
-    {
-        api: 'Experience__c', label: 'Experience',
-        fields: ['Name', 'Company__c', 'Location__c', 'Start_Date__c', 'End_Date__c',
-            'Is_Current__c', 'Display_Order__c', 'Is_Active__c']
-    },
-    {
-        api: 'Project__c', label: 'Projects',
-        fields: ['Name', 'Job__c', 'Client__c', 'Description__c', 'Tech_Stack__c', 'Impact__c',
-            'Project_URL__c', 'Display_Order__c', 'Is_Active__c']
-    },
-    {
-        api: 'Skill_Group__c', label: 'Skills',
-        fields: ['Name', 'Skills__c', 'Display_Order__c', 'Is_Active__c']
-    },
-    {
-        api: 'Certification__c', label: 'Certifications',
-        fields: ['Name', 'Issuer__c', 'Status__c', 'Credential_URL__c', 'Display_Order__c', 'Is_Active__c']
-    },
-    {
-        api: 'Education__c', label: 'Education',
-        fields: ['Name', 'Institution__c', 'Location__c', 'Display_Order__c', 'Is_Active__c']
-    },
-    {
-        api: 'Award__c', label: 'Awards',
-        fields: ['Name', 'Year__c', 'Description__c', 'Display_Order__c', 'Is_Active__c']
-    }
+    { api: 'Portfolio_Profile__c', label: 'Profile' },
+    { api: 'Experience__c', label: 'Experience' },
+    { api: 'Project__c', label: 'Projects' },
+    { api: 'Skill_Group__c', label: 'Skills' },
+    { api: 'Certification__c', label: 'Certifications' },
+    { api: 'Education__c', label: 'Education' },
+    { api: 'Award__c', label: 'Awards' }
 ];
+
+// always rendered last so ordering/visibility controls sit together
+const TRAILING_FIELDS = ['Display_Order__c', 'Is_Active__c'];
 
 export default class PortfolioAdmin extends LightningElement {
     activeObject = OBJECTS[0].api;
@@ -46,6 +26,9 @@ export default class PortfolioAdmin extends LightningElement {
     selectedId;
     isCreating = false;
     wireResult;
+
+    @wire(getObjectInfo, { objectApiName: '$activeObject' })
+    objectInfo;
 
     @wire(getRecords, { objectApiName: '$activeObject' })
     wiredRows(result) {
@@ -68,8 +51,19 @@ export default class PortfolioAdmin extends LightningElement {
         return OBJECTS.find((object) => object.api === this.activeObject);
     }
 
+    // Discovered from the object describe: every editable custom field (plus
+    // Name) renders automatically — new fields need no code changes here.
     get formFields() {
-        return this.objectConfig.fields;
+        const info = this.objectInfo && this.objectInfo.data;
+        if (!info) {
+            return [];
+        }
+        const leading = Object.values(info.fields)
+            .filter((field) => field.updateable && (field.custom || field.apiName === 'Name'))
+            .filter((field) => !TRAILING_FIELDS.includes(field.apiName))
+            .sort((a, b) => (a.apiName === 'Name' ? -1 : b.apiName === 'Name' ? 1 : a.label.localeCompare(b.label)))
+            .map((field) => field.apiName);
+        return [...leading, ...TRAILING_FIELDS];
     }
 
     get listItems() {

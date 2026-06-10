@@ -70,5 +70,10 @@ Everything renders from records — content updates happen by editing records, n
 ## Conventions
 
 - Placeholders only in code/tests — no real personal data, org IDs, or credentials.
+- New FIELD on an existing object: create field + Portfolio_Admin permset FLS; if shown
+  publicly, also guest profile FLS + PortfolioController query/DTO + LWC markup. The
+  admin page needs NO change — its form is describe-driven (every editable custom field
+  renders automatically, Display_Order/Is_Active pinned last).
 - New content section = new object (follow the conventions above) + DTO + controller
-  method + LWC + guest sharing rule + permset entries.
+  method + LWC + guest sharing rule + permset entries + admin: one tab entry in
+  portfolioAdmin OBJECTS + one entry in PortfolioAdminController.ALLOWED_OBJECTS.
