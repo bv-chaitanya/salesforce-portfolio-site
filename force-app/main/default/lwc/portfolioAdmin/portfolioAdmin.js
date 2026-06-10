@@ -6,8 +6,9 @@ import LightningConfirm from 'lightning/confirm';
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 import getRecords from '@salesforce/apex/PortfolioAdminController.getRecords';
 
+const PROFILE_OBJECT = 'Portfolio_Profile__c';
 const OBJECTS = [
-    { api: 'Portfolio_Profile__c', label: 'Profile' },
+    { api: PROFILE_OBJECT, label: 'Profile' },
     { api: 'Experience__c', label: 'Experience' },
     { api: 'Project__c', label: 'Projects' },
     { api: 'Skill_Group__c', label: 'Skills' },
@@ -20,17 +21,28 @@ const OBJECTS = [
 const TRAILING_FIELDS = ['Display_Order__c', 'Is_Active__c'];
 
 export default class PortfolioAdmin extends LightningElement {
-    activeObject = OBJECTS[0].api;
+    activeObject = OBJECTS[1].api; // land on Experience; Profile has its own tab
+    selectedProfileId = null;
     records;
     loadError;
     selectedId;
     isCreating = false;
     wireResult;
+    profilesResult;
+
+    // bootstrap: default the working profile to the first one
+    @wire(getRecords, { objectApiName: PROFILE_OBJECT, profileId: null })
+    wiredProfiles(result) {
+        this.profilesResult = result;
+        if (result.data && !this.selectedProfileId && result.data.length) {
+            this.selectedProfileId = result.data[0].Id;
+        }
+    }
 
     @wire(getObjectInfo, { objectApiName: '$activeObject' })
     objectInfo;
 
-    @wire(getRecords, { objectApiName: '$activeObject' })
+    @wire(getRecords, { objectApiName: '$activeObject', profileId: '$selectedProfileId' })
     wiredRows(result) {
         this.wireResult = result;
         if (result.data) {
@@ -51,9 +63,18 @@ export default class PortfolioAdmin extends LightningElement {
         return OBJECTS.find((object) => object.api === this.activeObject);
     }
 
+    get isProfileTab() {
+        return this.activeObject === PROFILE_OBJECT;
+    }
+
+    get hasWorkingProfile() {
+        return Boolean(this.selectedProfileId);
+    }
+
     // Discovered from the object describe: every editable custom field (plus
     // Name) renders automatically — new fields need no code changes here.
-    get formFields() {
+    // On create, Profile__c is prefilled with the working profile.
+    get formFieldItems() {
         const info = this.objectInfo && this.objectInfo.data;
         if (!info) {
             return [];
@@ -63,7 +84,11 @@ export default class PortfolioAdmin extends LightningElement {
             .filter((field) => !TRAILING_FIELDS.includes(field.apiName))
             .sort((a, b) => (a.apiName === 'Name' ? -1 : b.apiName === 'Name' ? 1 : a.label.localeCompare(b.label)))
             .map((field) => field.apiName);
-        return [...leading, ...TRAILING_FIELDS];
+        return [...leading, ...TRAILING_FIELDS].map((api) => ({
+            api,
+            prefill: this.isCreating && api === 'Profile__c',
+            value: api === 'Profile__c' ? this.selectedProfileId : undefined
+        }));
     }
 
     get listItems() {
@@ -101,6 +126,18 @@ export default class PortfolioAdmin extends LightningElement {
         return selected ? `Edit: ${selected.Name}` : '';
     }
 
+    handleProfilePick(event) {
+        this.selectedProfileId = event.detail.recordId || null;
+        this.selectedId = undefined;
+        this.isCreating = false;
+    }
+
+    handleNewProfile() {
+        this.activeObject = PROFILE_OBJECT;
+        this.isCreating = true;
+        this.selectedId = undefined;
+    }
+
     handleTabActive(event) {
         this.activeObject = event.target.value;
         this.selectedId = undefined;
@@ -126,7 +163,12 @@ export default class PortfolioAdmin extends LightningElement {
         const id = event.detail.id;
         const verb = this.isCreating ? 'created' : 'saved';
         this.isCreating = false;
-        this.selectedId = id;
+        if (this.isProfileTab) {
+            this.selectedProfileId = id;
+            refreshApex(this.profilesResult);
+        } else {
+            this.selectedId = id;
+        }
         this.toast('Success', `Record ${verb}. The public site reflects it on next load.`, 'success');
         return refreshApex(this.wireResult);
     }
@@ -137,22 +179,30 @@ export default class PortfolioAdmin extends LightningElement {
     }
 
     async handleDelete() {
-        const selected = (this.records || []).find((record) => record.Id === this.selectedId);
-        if (!selected) {
+        const targetId = this.isProfileTab ? this.selectedProfileId : this.selectedId;
+        if (!targetId) {
             return;
         }
+        const message = this.isProfileTab
+            ? 'Delete this profile permanently? Its records stay but lose their profile link (and stop rendering publicly). Unchecking Active hides the whole persona without deleting.'
+            : 'Delete this record permanently? Unchecking Active hides it without deleting.';
         const confirmed = await LightningConfirm.open({
-            message: `Delete "${selected.Name}" permanently? Unchecking Active hides it without deleting.`,
+            message,
             label: 'Delete record',
             theme: 'warning'
         });
         if (!confirmed) {
             return;
         }
-        deleteRecord(selected.Id)
+        deleteRecord(targetId)
             .then(() => {
-                this.selectedId = undefined;
-                this.toast('Deleted', `"${selected.Name}" removed`, 'success');
+                if (this.isProfileTab) {
+                    this.selectedProfileId = null;
+                    refreshApex(this.profilesResult);
+                } else {
+                    this.selectedId = undefined;
+                }
+                this.toast('Deleted', 'Record removed', 'success');
                 return refreshApex(this.wireResult);
             })
             .catch((error) => this.toast('Delete failed', this.toMessage(error), 'error'));

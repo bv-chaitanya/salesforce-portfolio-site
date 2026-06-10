@@ -1,8 +1,9 @@
 /**
  * Internal-only data provider for the Portfolio Content Manager app page.
- * Returns ALL records (active and inactive) for the record picker; the edit
- * form discovers its fields from the object describe, so new custom fields
- * need no changes here. Never grant this class to the site guest profile.
+ * Returns ALL records (active and inactive), scoped to a working profile when
+ * profileId is provided (Projects scope through their Job's profile). The edit
+ * form discovers its fields from the object describe. Never grant this class
+ * to the site guest profile.
  */
 public with sharing class PortfolioAdminController {
     @TestVisible
@@ -12,14 +13,18 @@ public with sharing class PortfolioAdminController {
     };
 
     @AuraEnabled(cacheable=true)
-    public static List<SObject> getRecords(String objectApiName) {
+    public static List<SObject> getRecords(String objectApiName, Id profileId) {
         if (!ALLOWED_OBJECTS.contains(objectApiName)) {
             throw new AuraHandledException('Unsupported object: ' + objectApiName);
         }
         // allowlisted object + fixed field list — no user input reaches the query
-        String soql = 'SELECT Id, Name, Display_Order__c, Is_Active__c'
-            + ' FROM ' + objectApiName
-            + ' ORDER BY Display_Order__c ASC NULLS LAST, Name ASC';
+        String soql = 'SELECT Id, Name, Display_Order__c, Is_Active__c FROM ' + objectApiName;
+        if (profileId != null && objectApiName == 'Project__c') {
+            soql += ' WHERE Job__r.Profile__c = :profileId';
+        } else if (profileId != null && objectApiName != 'Portfolio_Profile__c') {
+            soql += ' WHERE Profile__c = :profileId';
+        }
+        soql += ' ORDER BY Display_Order__c ASC NULLS LAST, Name ASC';
         return Database.query(soql);
     }
 }

@@ -73,11 +73,16 @@ chip, buttons, and section headers. Never animate `backdrop-filter`; hover shado
 a pre-rendered `::after` (opacity only). `prefers-reduced-motion` honored everywhere.
 
 **Admin (internal only)**: App Launcher → "Portfolio Admin" (FlexiPage + tab).
-`portfolioAdmin` LWC: left record picker (Inactive badges), right
+`portfolioAdmin` LWC is **profile-scoped**: a searchable `lightning-record-picker` at
+the top selects the working profile (+ New Profile button); the Profile tab edits that
+profile directly, and every other tab lists only that profile's records (Projects scope
+via `Job__r.Profile__c`). New records are auto-linked — Profile__c prefills with the
+working profile on create forms. Left record picker (Inactive badges), right
 `lightning-record-edit-form` — **describe-driven**: every editable custom field renders
 automatically (Name first, Display_Order/Is_Active pinned last). In-place New, Delete
-with confirm. Targets `lightning__AppPage`/`HomePage` only — it cannot be placed on the
-Experience site, and the guest profile has no access to its controller.
+with confirm (profile delete warns that children lose their link). Targets
+`lightning__AppPage`/`HomePage` only — it cannot be placed on the Experience site, and
+the guest profile has no access to its controller.
 
 **Guest security model**: guest profile = object Read ×7 + FLS on rendered fields only
 (no Phone) + access to `PortfolioController` only. Criteria-based **guest sharing
