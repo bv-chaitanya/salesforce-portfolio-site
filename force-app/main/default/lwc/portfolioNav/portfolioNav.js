@@ -1,4 +1,5 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, wire } from 'lwc';
+import getProfile from '@salesforce/apex/PortfolioController.getProfile';
 
 const SECTIONS = [
     { id: 'about', label: 'About', selector: 'c-portfolio-hero' },
@@ -8,13 +9,27 @@ const SECTIONS = [
     { id: 'education', label: 'Education', selector: 'c-portfolio-education' },
     { id: 'awards', label: 'Awards', selector: 'c-portfolio-awards' }
 ];
+const LAST_SECTION_ID = SECTIONS[SECTIONS.length - 1].id;
 const SPY_RETRY_MS = 300;
 const SPY_MAX_RETRIES = 10;
+// hero is "gone" once its bottom passes this viewport offset
+const NAME_CHIP_TRIGGER_PX = 96;
+const BOTTOM_EPSILON_PX = 8;
 
 export default class PortfolioNav extends LightningElement {
     activeId = 'about';
+    profileName;
+    showName = false;
     observer;
     spyStarted = false;
+    scrollTicking = false;
+
+    @wire(getProfile)
+    wiredProfile({ data }) {
+        if (data) {
+            this.profileName = data.fullName;
+        }
+    }
 
     get items() {
         return SECTIONS.map((section) => ({
@@ -23,10 +38,16 @@ export default class PortfolioNav extends LightningElement {
         }));
     }
 
+    get nameChipClass() {
+        return this.showName ? 'name-chip show' : 'name-chip';
+    }
+
     renderedCallback() {
         if (!this.spyStarted) {
             this.spyStarted = true;
             this.trySetupObserver(0);
+            this.boundScroll = () => this.queueScrollUpdate();
+            window.addEventListener('scroll', this.boundScroll, { passive: true });
         }
     }
 
@@ -34,6 +55,10 @@ export default class PortfolioNav extends LightningElement {
         if (this.observer) {
             this.observer.disconnect();
             this.observer = undefined;
+        }
+        if (this.boundScroll) {
+            window.removeEventListener('scroll', this.boundScroll);
+            this.boundScroll = undefined;
         }
     }
 
@@ -43,6 +68,38 @@ export default class PortfolioNav extends LightningElement {
         const target = document.querySelector(selector);
         if (target) {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    handleNameClick() {
+        this.activeId = 'about';
+        const hero = document.querySelector(SECTIONS[0].selector);
+        if (hero) {
+            hero.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    queueScrollUpdate() {
+        if (this.scrollTicking) {
+            return;
+        }
+        this.scrollTicking = true;
+        requestAnimationFrame(() => {
+            this.scrollTicking = false;
+            this.onScrollFrame();
+        });
+    }
+
+    onScrollFrame() {
+        const hero = document.querySelector(SECTIONS[0].selector);
+        if (hero) {
+            this.showName = hero.getBoundingClientRect().bottom < NAME_CHIP_TRIGGER_PX;
+        }
+        // The observer's trigger band can never reach the last section when the
+        // page bottoms out first — force it active at the end of the scroll.
+        const doc = document.documentElement;
+        if (window.innerHeight + window.scrollY >= doc.scrollHeight - BOTTOM_EPSILON_PX) {
+            this.activeId = LAST_SECTION_ID;
         }
     }
 
