@@ -7,7 +7,8 @@ body {
 }
 
 html {
-    background: #eef2f9;
+    background: #e9eef9;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -16,14 +17,12 @@ body {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     background:
-        radial-gradient(42rem 30rem at 12% -6%, rgba(99, 164, 255, 0.28), transparent 60%),
-        radial-gradient(36rem 28rem at 90% 10%, rgba(167, 139, 250, 0.18), transparent 60%),
-        radial-gradient(50rem 34rem at 50% 108%, rgba(56, 189, 248, 0.18), transparent 60%),
-        #eef2f9;
-}
-
-html {
-    scroll-behavior: smooth;
+        radial-gradient(46rem 32rem at 10% -4%, rgba(96, 165, 250, 0.38), transparent 62%),
+        radial-gradient(40rem 30rem at 92% 6%, rgba(167, 139, 250, 0.3), transparent 62%),
+        radial-gradient(44rem 30rem at -6% 38%, rgba(56, 189, 248, 0.22), transparent 62%),
+        radial-gradient(40rem 28rem at 104% 64%, rgba(129, 140, 248, 0.2), transparent 62%),
+        radial-gradient(52rem 36rem at 50% 106%, rgba(56, 189, 248, 0.24), transparent 62%),
+        linear-gradient(180deg, #e8eefb 0%, #eef2f9 45%, #e9f1fb 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {

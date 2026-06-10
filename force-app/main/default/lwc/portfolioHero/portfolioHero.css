@@ -1,12 +1,13 @@
 :host {
-    --ink: #1e293b;
+    --ink: #16233a;
     --muted: #5b6b80;
     --accent: #0b5cab;
+    --accent-2: #1589ee;
     display: block;
 }
 
 .hero {
-    max-width: 64rem;
+    max-width: 76rem;
     margin: 1.25rem auto 0;
     padding: 0 1rem;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -20,13 +21,17 @@
     align-items: center;
     text-align: center;
     padding: 3rem 1.5rem 2.5rem;
-    border-radius: 24px;
-    background: linear-gradient(135deg, #0e2a47 0%, #0b5cab 58%, #1589ee 100%);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 28px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.4));
+    backdrop-filter: blur(24px) saturate(170%);
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    border: 1px solid rgba(255, 255, 255, 0.72);
     box-shadow:
-        0 20px 50px rgba(11, 92, 171, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    color: #ffffff;
+        0 24px 60px rgba(30, 58, 95, 0.16),
+        0 2px 8px rgba(30, 58, 95, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+    color: var(--ink);
 }
 
 .hero-band::before,
@@ -38,32 +43,34 @@
 }
 
 .hero-band::before {
-    width: 22rem;
-    height: 22rem;
-    right: -8rem;
-    top: -10rem;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 70%);
+    width: 24rem;
+    height: 24rem;
+    right: -9rem;
+    top: -11rem;
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, rgba(96, 165, 250, 0) 70%);
 }
 
 .hero-band::after {
-    width: 18rem;
-    height: 18rem;
-    left: -7rem;
-    bottom: -9rem;
-    background: radial-gradient(circle, rgba(21, 137, 238, 0.4) 0%, rgba(21, 137, 238, 0) 70%);
+    width: 20rem;
+    height: 20rem;
+    left: -8rem;
+    bottom: -10rem;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.26) 0%, rgba(167, 139, 250, 0) 70%);
 }
 
 .avatar {
-    width: 8rem;
-    height: 8rem;
+    width: 8.5rem;
+    height: 8.5rem;
     border-radius: 50%;
     overflow: hidden;
-    border: 3px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 8px 24px rgba(2, 20, 41, 0.35);
+    border: 3px solid transparent;
+    background:
+        linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)) padding-box,
+        linear-gradient(135deg, #0b5cab, #38bdf8, #a78bfa) border-box;
+    box-shadow: 0 10px 30px rgba(30, 58, 95, 0.22);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.14);
     flex-shrink: 0;
     position: relative;
     z-index: 1;
@@ -74,38 +81,46 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: 50%;
 }
 
 .avatar-initials {
-    font-size: 2.6rem;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 0.05em;
+    font-size: 2.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .name {
     margin: 1.4rem 0 0;
-    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-size: clamp(2rem, 5vw, 3rem);
     font-weight: 800;
     letter-spacing: -0.03em;
-    line-height: 1.12;
+    line-height: 1.1;
+    color: #0d1b2e;
     position: relative;
     z-index: 1;
 }
 
 .headline {
     margin: 0.55rem 0 0;
-    font-size: clamp(1rem, 3vw, 1.25rem);
-    font-weight: 600;
-    color: #cfe5ff;
+    font-size: clamp(1rem, 3vw, 1.3rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--accent), #7c5bd6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     position: relative;
     z-index: 1;
 }
 
 .location {
-    margin: 0.4rem 0 0;
+    margin: 0.45rem 0 0;
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.75);
+    color: var(--muted);
     position: relative;
     z-index: 1;
 }
@@ -131,42 +146,45 @@
 }
 
 .btn-solid {
-    background: rgba(255, 255, 255, 0.95);
-    color: var(--accent);
-    box-shadow: inset 0 1px 0 #ffffff, 0 2px 8px rgba(2, 20, 41, 0.2);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #ffffff;
+    box-shadow:
+        0 6px 18px rgba(11, 92, 171, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .btn-solid:hover {
     transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(2, 20, 41, 0.3);
+    box-shadow: 0 10px 24px rgba(11, 92, 171, 0.45);
 }
 
 .btn-outline {
-    border: 1.5px solid rgba(255, 255, 255, 0.7);
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    color: var(--accent);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.8);
 }
 
 .summary {
-    max-width: 46rem;
+    max-width: 56rem;
     margin-top: 1.9rem;
-    padding: 1.3rem 1.4rem;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    padding: 1.3rem 1.5rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     text-align: left;
     font-size: 0.98rem;
     line-height: 1.7;
-    color: #eaf2fb;
+    color: #243750;
     position: relative;
     z-index: 1;
 }
