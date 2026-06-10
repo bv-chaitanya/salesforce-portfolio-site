@@ -6,11 +6,12 @@ const NAVIGATE_EVENT = 'portfolio360navigate';
 // Fired by this component whenever the visible page changes; the dock follows.
 const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const TABS = ['experience', 'skills', 'certifications', 'education', 'more'];
-const WHEEL_COOLDOWN_MS = 550;
-// a wheel event after this much silence is a NEW gesture; anything sooner is
-// momentum/inertia continuation and must never flip a page
+const WHEEL_COOLDOWN_MS = 450;
+// silence longer than this marks a brand-new gesture
 const GESTURE_GAP_MS = 250;
 const WHEEL_MIN_DELTA = 30;
+// discrete mouse-wheel notches repeat a constant large delta
+const NOTCH_MIN_DELTA = 40;
 const SWIPE_MIN_PX = 60;
 // scrolled into this zone = back at the hero ("About"); the page sequence restarts
 const TOP_ZONE_PX = 140;
@@ -20,6 +21,7 @@ export default class Portfolio360 extends LightningElement {
     slideClass = '';
     lastFlipAt = 0;
     lastWheelEventAt = 0;
+    lastAbsDelta = 0;
     prevScrollY = 0;
     scrollTicking = false;
     touchStartX = 0;
@@ -119,26 +121,36 @@ export default class Portfolio360 extends LightningElement {
     }
 
     // horizontal trackpad/mouse-tilt scrolling flips pages; vertical scrolling
-    // past the END of a page advances to the next tab in order. Only a FRESH
-    // gesture flips — momentum events chain otherwise and skip through pages.
+    // past the END of a page advances to the next tab in order. A flip needs a
+    // HUMAN IMPULSE: a fresh gesture after silence, a RISING delta (trackpad
+    // inertia only decays), or a constant large notch (discrete mouse wheel).
     handleWheel(event) {
         const now = Date.now();
-        const freshGesture = now - this.lastWheelEventAt > GESTURE_GAP_MS;
+        const sinceLast = now - this.lastWheelEventAt;
         this.lastWheelEventAt = now;
-        if (!freshGesture || now - this.lastFlipAt < WHEEL_COOLDOWN_MS) {
-            return;
-        }
         // Firefox reports lines, not pixels
         const unit = event.deltaMode === 1 ? 16 : 1;
         const deltaX = event.deltaX * unit;
         const deltaY = event.deltaY * unit;
-        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) > WHEEL_MIN_DELTA) {
+        const dominantX = Math.abs(deltaX) > Math.abs(deltaY) * 1.5;
+        const abs = dominantX ? Math.abs(deltaX) : Math.abs(deltaY);
+        const prevAbs = sinceLast > GESTURE_GAP_MS ? 0 : this.lastAbsDelta;
+        this.lastAbsDelta = abs;
+        if (now - this.lastFlipAt < WHEEL_COOLDOWN_MS || abs < WHEEL_MIN_DELTA) {
+            return;
+        }
+        const impulse = prevAbs === 0
+            || abs > prevAbs * 1.2
+            || (abs >= NOTCH_MIN_DELTA && Math.abs(abs - prevAbs) < 1);
+        if (!impulse) {
+            return;
+        }
+        if (dominantX) {
             this.lastFlipAt = now;
             this.step(deltaX > 0 ? 1 : -1);
             return;
         }
-        if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > WHEEL_MIN_DELTA
-            && this.isAtPageBottom()) {
+        if (deltaY > 0 && this.isAtPageBottom()) {
             this.lastFlipAt = now;
             this.step(1);
         }
