@@ -29,7 +29,7 @@ export default class PortfolioExperience extends LightningElement {
     @api hideTitle = false;
     jobs = [];
     state = 'loading';
-    profileId;
+    profileId = null;
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

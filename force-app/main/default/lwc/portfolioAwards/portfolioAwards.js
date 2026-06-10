@@ -4,7 +4,7 @@ import getAwards from '@salesforce/apex/PortfolioController.getAwards';
 export default class PortfolioAwards extends LightningElement {
     awards = [];
     state = 'loading';
-    profileId;
+    profileId = null;
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

@@ -20,7 +20,7 @@ export default class PortfolioNav extends LightningElement {
     activeId = 'about';
     lastTabId = 'experience';
     profileName;
-    profileId;
+    profileId = null;
     showName = false;
     indicatorReady = false;
     scrollTicking = false;

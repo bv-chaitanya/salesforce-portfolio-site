@@ -119,7 +119,10 @@ Unchecking `Is_Active__c` hides a record from the site instantly.
 10. `lightning-tab` content swaps need the spy to be scroll-position based — short
     panels can't push the hero fully out, so hero-visibility checks steal active state.
 11. Buttons don't inherit `font-family`; set it explicitly (dock/chip do).
-12. Photo is an org `StaticResource` (`profilePhoto`, 512px JPEG) served at
+12. Apex `@wire` with a reactive config param that is `undefined` NEVER calls the
+    server (component hangs in loading). Initialize reactive params to `null`
+    (`profileId = null`) — null reaches Apex and resolves the default.
+13. Photo is an org `StaticResource` (`profilePhoto`, 512px JPEG) served at
     `https://chap-dev-ed.my.site.com/sfsites/c/resource/profilePhoto` — same origin, no
     CSP concerns. OG link-preview meta tags live in headMarkup.
 

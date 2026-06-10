@@ -5,7 +5,7 @@ export default class PortfolioSkills extends LightningElement {
     @api hideTitle = false;
     groups = [];
     state = 'loading';
-    profileId;
+    profileId = null;
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

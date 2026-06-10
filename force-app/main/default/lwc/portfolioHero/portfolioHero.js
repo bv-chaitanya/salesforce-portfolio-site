@@ -5,7 +5,7 @@ export default class PortfolioHero extends LightningElement {
     profile;
     state = 'loading';
     photoFailed = false;
-    profileId;
+    profileId = null;
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

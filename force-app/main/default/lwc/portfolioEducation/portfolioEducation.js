@@ -4,7 +4,7 @@ import getEducation from '@salesforce/apex/PortfolioController.getEducation';
 export default class PortfolioEducation extends LightningElement {
     entries = [];
     state = 'loading';
-    profileId;
+    profileId = null;
 
     connectedCallback() {
         this.boundProfileChange = (event) => {

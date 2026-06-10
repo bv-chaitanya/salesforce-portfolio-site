@@ -5,7 +5,7 @@ export default class PortfolioCertifications extends LightningElement {
     @api hideTitle = false;
     certifications = [];
     state = 'loading';
-    profileId;
+    profileId = null;
 
     connectedCallback() {
         this.boundProfileChange = (event) => {
