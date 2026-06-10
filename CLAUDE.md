@@ -3,9 +3,12 @@
 Public portfolio/resume website hosted on a personal Salesforce Developer Edition org.
 Everything renders from records — content updates happen by editing records, never code.
 
-## Org
+## Org & repo
 
 - **Alias**: `portfolio` | **Org**: `chap-dev-ed.my.salesforce.com` (Developer Edition, API 66.0)
+- **GitHub**: https://github.com/bv-chaitanya/salesforce-portfolio-site (public, personal account).
+  The remote URL embeds `bv-chaitanya@` so pushes use the personal token even though the
+  machine's active `gh` account is the work one (`rax-chaitu`) — don't "fix" the remote URL.
 - Deploy directly (no scratch orgs): `sf project deploy start -o portfolio`
 - Run tests: `sf apex run test -o portfolio -l RunLocalTests -w 10 -r human -c`
 - Target site: Experience Cloud **LWR** ("Build Your Own (LWR)" template), public guest access
@@ -43,8 +46,8 @@ Everything renders from records — content updates happen by editing records, n
 ## Phase status
 
 - [x] Phase 1 — resume analysis + schema approved
-- [x] Phase 2 — objects, Apex, tests (built; deploy pending approval)
-- [x] Phase 3 — LWCs (built)
+- [x] Phase 2 — objects, Apex, tests (deployed 2026-06-10; 16/16 pass, controller 100% coverage)
+- [x] Phase 3 — LWCs (deployed)
 - [ ] Phase 4 — guest access config (needs site to exist first — see decision 5)
 - [ ] Phase 5 — data load (parsed content review → anonymous Apex insert)
 - [ ] Phase 6 — manual site creation + page composition checklist
