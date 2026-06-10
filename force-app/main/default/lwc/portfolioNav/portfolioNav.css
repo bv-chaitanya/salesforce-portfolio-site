@@ -64,6 +64,8 @@
 
 .dock {
     pointer-events: auto;
+    position: relative;
+    animation: dock-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     display: flex;
     align-items: center;
     gap: 0.2rem;
@@ -88,7 +90,28 @@
     display: none;
 }
 
+.indicator {
+    position: absolute;
+    top: 0.4rem;
+    bottom: 0.4rem;
+    left: 0;
+    width: 0;
+    border-radius: 999px;
+    background: #1d1d1f;
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+}
+
+.indicator.animate {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .nav-btn {
+    position: relative;
+    z-index: 1;
     flex-shrink: 0;
     font-family: inherit;
     border: none;
@@ -109,11 +132,19 @@
 }
 
 .nav-btn.active {
-    background: #1d1d1f;
+    background: transparent;
     color: #ffffff;
-    box-shadow:
-        0 4px 14px rgba(0, 0, 0, 0.28),
-        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+@keyframes dock-in {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 .nav-btn:focus-visible {
@@ -133,5 +164,13 @@
     .nav-btn,
     .name-chip {
         transition: none;
+    }
+
+    .indicator.animate {
+        transition: none;
+    }
+
+    .dock {
+        animation: none;
     }
 }

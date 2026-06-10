@@ -29,14 +29,32 @@ export default class Portfolio360 extends LightningElement {
 
     handleNavigate(event) {
         const tabId = event.detail && event.detail.tabId;
-        if (TABS.includes(tabId)) {
+        if (!TABS.includes(tabId) || tabId === this.activeTab) {
+            return;
+        }
+        const apply = () => {
             this.activeTab = tabId;
             try {
                 window.history.replaceState(null, '', `#${tabId}`);
             } catch (e) {
                 // ignore — see above
             }
+        };
+        // View Transitions crossfade where supported; plain swap elsewhere
+        try {
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (typeof document.startViewTransition === 'function' && !reduceMotion) {
+                document.startViewTransition(() => {
+                    apply();
+                    // give LWC a frame to flush the re-render before the snapshot
+                    return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+                });
+                return;
+            }
+        } catch (e) {
+            // fall through to plain swap
         }
+        apply();
     }
 
     panelClass(id) {

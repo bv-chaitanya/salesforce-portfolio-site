@@ -99,12 +99,12 @@
     backdrop-filter: blur(12px) saturate(150%);
     -webkit-backdrop-filter: blur(12px) saturate(150%);
     padding: 1rem 1.1rem;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    position: relative;
+    transition: transform 0.2s ease;
 }
 
 .project:hover {
     transform: translateY(-2px);
-    box-shadow: var(--glass-shadow-hover);
 }
 
 .project-name {
@@ -206,5 +206,26 @@
 @media (min-width: 1100px) {
     .projects {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.project::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    box-shadow: var(--glass-shadow-hover);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.project:hover::after {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project::after {
+        transition: none;
     }
 }

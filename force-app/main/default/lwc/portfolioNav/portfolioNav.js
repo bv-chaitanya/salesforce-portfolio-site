@@ -22,6 +22,7 @@ export default class PortfolioNav extends LightningElement {
     profileName;
     showName = false;
     initialized = false;
+    indicatorReady = false;
     scrollTicking = false;
 
     @wire(getProfile)
@@ -43,28 +44,52 @@ export default class PortfolioNav extends LightningElement {
     }
 
     renderedCallback() {
-        if (this.initialized) {
-            return;
-        }
-        this.initialized = true;
-        try {
-            const hash = window.location.hash.replace('#', '').toLowerCase();
-            if (TAB_IDS.has(hash)) {
-                this.activeId = hash;
-                this.lastTabId = hash;
+        if (!this.initialized) {
+            this.initialized = true;
+            try {
+                const hash = window.location.hash.replace('#', '').toLowerCase();
+                if (TAB_IDS.has(hash)) {
+                    this.activeId = hash;
+                    this.lastTabId = hash;
+                }
+            } catch (e) {
+                // deep links are a nice-to-have
             }
-        } catch (e) {
-            // deep links are a nice-to-have
+            this.boundScroll = () => this.queueScrollUpdate();
+            window.addEventListener('scroll', this.boundScroll, { passive: true });
+            this.queueScrollUpdate();
         }
-        this.boundScroll = () => this.queueScrollUpdate();
-        window.addEventListener('scroll', this.boundScroll, { passive: true });
-        this.queueScrollUpdate();
+        this.positionIndicator();
     }
 
     disconnectedCallback() {
         if (this.boundScroll) {
             window.removeEventListener('scroll', this.boundScroll);
             this.boundScroll = undefined;
+        }
+    }
+
+    // FLIP-style sliding pill: the indicator is one absolutely positioned
+    // element animated with transform/width only (compositor-cheap).
+    positionIndicator() {
+        const dock = this.template.querySelector('.dock');
+        const active = this.template.querySelector('.nav-btn.active');
+        const indicator = this.template.querySelector('.indicator');
+        if (!dock || !active || !indicator) {
+            return;
+        }
+        indicator.style.width = `${active.offsetWidth}px`;
+        indicator.style.transform = `translateX(${active.offsetLeft}px)`;
+        if (!this.indicatorReady) {
+            this.indicatorReady = true;
+            // first paint lands instantly; animate from the second change on
+            requestAnimationFrame(() => indicator.classList.add('animate'));
+        }
+        if (dock.scrollWidth > dock.clientWidth) {
+            dock.scrollTo({
+                left: Math.max(0, active.offsetLeft - 24),
+                behavior: 'smooth'
+            });
         }
     }
 
