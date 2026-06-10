@@ -59,9 +59,13 @@ edit forms and auto-linked new records — so updating the portfolio never touch
 ### LWC
 
 One component per section — hero, experience timeline (with nested project cards),
-skills, certifications, education, awards. Mobile-first custom CSS (LWR sites don't
-load full SLDS, so no utility-class dependence), zero external JavaScript libraries,
-and loading/empty/error states in every component.
+skills, certifications, education, awards, and a dynamic-sections renderer. Navigation
+is a **bidirectional scroll pager**: one page at a time, sliding horizontally; scrolling
+past a page's end advances to the next tab, scrolling up at a page's start goes back one
+(landing at its bottom for continuity), with impulse detection that ignores trackpad
+inertia. Dock clicks, horizontal scroll, and touch swipes all page too. Mobile-first
+custom CSS (LWR sites don't load full SLDS, so no utility-class dependence), zero
+external JavaScript libraries, and loading/empty/error states in every component.
 
 ### Guest access
 

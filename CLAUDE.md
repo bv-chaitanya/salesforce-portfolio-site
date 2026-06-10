@@ -168,7 +168,7 @@ deliberately never committed) → set Photo_URL to the static resource URL → p
 
 Complete as of 2026-06-10. Schema (8 objects, multi-profile), Apex 50/50 tests with
 both controllers at 100% coverage, Jest 33/33, lint 0, guest access verified by SOQL.
-Site live: liquid-glass design, scroll-snap tab flow with dock spy, profile switcher
+Site live: liquid-glass design, bidirectional scroll pager with dock sync, profile switcher
 rail (2+ active profiles), single "No active profiles" kill-switch state, dynamic
 record-driven sections (Portfolio_Item__c → "More"), profile-scoped admin workspace,
 photo static resource, OG tags. No open items beyond monthly org login.
