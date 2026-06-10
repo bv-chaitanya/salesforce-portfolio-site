@@ -114,6 +114,15 @@ Unchecking `Is_Active__c` hides a record from the site instantly.
     `https://chap-dev-ed.my.site.com/sfsites/c/resource/profilePhoto` — same origin, no
     CSP concerns. OG link-preview meta tags live in headMarkup.
 
+## Disaster recovery (org loss)
+
+The repo holds everything deployable: schema, code, site bundle, guest profile +
+sharing rules, `networks/` + `sites/` (site container settings). Org-side-only:
+the org/domain itself and the data records. Rebuild: new Dev Edition → enable Digital
+Experiences → create "Build Your Own (LWR)" site named **Portfolio** (recreates the
+guest user) → `sf project deploy start` → re-seed records from the resumes (script was
+deliberately never committed) → set Photo_URL to the static resource URL → publish.
+
 ## Status
 
 All phases complete (2026-06-10): schema, Apex (46/46 tests, 100% coverage both
