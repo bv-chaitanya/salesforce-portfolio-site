@@ -1,5 +1,15 @@
 import { createElement } from 'lwc';
 import Portfolio360 from 'c/portfolio360';
+import getItemSections from '@salesforce/apex/PortfolioController.getItemSections';
+
+jest.mock(
+    '@salesforce/apex/PortfolioController.getItemSections',
+    () => {
+        const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');
+        return { default: createApexTestWireAdapter(jest.fn()) };
+    },
+    { virtual: true }
+);
 
 jest.mock(
     '@salesforce/apex/PortfolioController.getProfiles',
@@ -157,6 +167,31 @@ describe('c-portfolio360', () => {
         await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
         expect(visibleTabs(element)).toEqual(['experience']);
+    });
+
+    it('never pages onto an empty More tab', async () => {
+        const element = create();
+        window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'education' } }));
+        await flush();
+        const wrap = element.shadowRoot.querySelector('.wrap');
+        Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
+
+        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 200, deltaX: 0 }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['education']);
+    });
+
+    it('pages onto More when dynamic items exist', async () => {
+        const element = create();
+        getItemSections.emit([{ section: 'Publications', items: [] }]);
+        await flush();
+        window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'more' } }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['more']);
     });
 
     it('stops listening after disconnect', async () => {

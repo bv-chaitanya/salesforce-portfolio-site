@@ -1,5 +1,6 @@
 import { LightningElement, wire } from 'lwc';
 import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
+import getItemSections from '@salesforce/apex/PortfolioController.getItemSections';
 
 // Fired by c-portfolio-nav (the floating dock) — the single navigation surface.
 const NAVIGATE_EVENT = 'portfolio360navigate';
@@ -12,6 +13,11 @@ const GESTURE_GAP_MS = 250;
 const WHEEL_MIN_DELTA = 30;
 // discrete mouse-wheel notches repeat a constant large delta
 const NOTCH_MIN_DELTA = 40;
+// the page is "at its end" once inside this zone (content ends ~120px of
+// dock-clearance padding above the hard bottom)
+const BOTTOM_ZONE_PX = 160;
+// continued scroll distance inside the zone that flips without a new impulse
+const OVERSHOOT_PX = 160;
 const SWIPE_MIN_PX = 60;
 // scrolled into this zone = back at the hero ("About"); the page sequence restarts
 const TOP_ZONE_PX = 140;
@@ -22,6 +28,9 @@ export default class Portfolio360 extends LightningElement {
     lastFlipAt = 0;
     lastWheelEventAt = 0;
     lastAbsDelta = 0;
+    bottomAccum = 0;
+    profileId = null;
+    hasMoreItems = false;
     prevScrollY = 0;
     scrollTicking = false;
     touchStartX = 0;
@@ -34,6 +43,18 @@ export default class Portfolio360 extends LightningElement {
         if (data) {
             this.profilesKnownEmpty = data.length === 0;
         }
+    }
+
+    @wire(getItemSections, { profileId: '$profileId' })
+    wiredItemSections({ data }) {
+        if (data) {
+            this.hasMoreItems = data.length > 0;
+        }
+    }
+
+    // 'more' is only navigable when dynamic items exist — never page onto a blank
+    get availableTabs() {
+        return this.hasMoreItems ? TABS : TABS.slice(0, -1);
     }
 
     get siteHasProfiles() {
@@ -51,6 +72,10 @@ export default class Portfolio360 extends LightningElement {
         }
         this.boundNavigate = (event) => this.handleNavigate(event);
         window.addEventListener(NAVIGATE_EVENT, this.boundNavigate);
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
         this.prevScrollY = window.scrollY;
         this.boundScroll = () => this.queueScrollCheck();
         window.addEventListener('scroll', this.boundScroll, { passive: true });
@@ -64,6 +89,10 @@ export default class Portfolio360 extends LightningElement {
         if (this.boundScroll) {
             window.removeEventListener('scroll', this.boundScroll);
             this.boundScroll = undefined;
+        }
+        if (this.boundProfileChange) {
+            window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+            this.boundProfileChange = undefined;
         }
     }
 
@@ -95,7 +124,7 @@ export default class Portfolio360 extends LightningElement {
     }
 
     switchTo(tabId, animate = true) {
-        if (!TABS.includes(tabId) || tabId === this.activeTab) {
+        if (!this.availableTabs.includes(tabId) || tabId === this.activeTab) {
             return;
         }
         // entering page slides in from the direction of travel
@@ -114,9 +143,10 @@ export default class Portfolio360 extends LightningElement {
     }
 
     step(direction) {
-        const index = TABS.indexOf(this.activeTab) + direction;
-        if (index >= 0 && index < TABS.length) {
-            this.switchTo(TABS[index]);
+        const tabs = this.availableTabs;
+        const index = tabs.indexOf(this.activeTab) + direction;
+        if (index >= 0 && index < tabs.length) {
+            this.switchTo(tabs[index]);
         }
     }
 
@@ -136,22 +166,29 @@ export default class Portfolio360 extends LightningElement {
         const abs = dominantX ? Math.abs(deltaX) : Math.abs(deltaY);
         const prevAbs = sinceLast > GESTURE_GAP_MS ? 0 : this.lastAbsDelta;
         this.lastAbsDelta = abs;
-        if (now - this.lastFlipAt < WHEEL_COOLDOWN_MS || abs < WHEEL_MIN_DELTA) {
-            return;
-        }
-        const impulse = prevAbs === 0
+        const coolingDown = now - this.lastFlipAt < WHEEL_COOLDOWN_MS;
+        const impulse = abs >= WHEEL_MIN_DELTA && (prevAbs === 0
             || abs > prevAbs * 1.2
-            || (abs >= NOTCH_MIN_DELTA && Math.abs(abs - prevAbs) < 1);
-        if (!impulse) {
-            return;
-        }
+            || (abs >= NOTCH_MIN_DELTA && Math.abs(abs - prevAbs) < 1));
+
         if (dominantX) {
-            this.lastFlipAt = now;
-            this.step(deltaX > 0 ? 1 : -1);
+            this.bottomAccum = 0;
+            if (impulse && !coolingDown) {
+                this.lastFlipAt = now;
+                this.step(deltaX > 0 ? 1 : -1);
+            }
             return;
         }
-        if (deltaY > 0 && this.isAtPageBottom()) {
+        if (deltaY <= 0 || !this.isAtPageBottom()) {
+            this.bottomAccum = 0;
+            return;
+        }
+        // inside the bottom zone: a fresh impulse OR enough continued scroll
+        // distance from the same gesture flips — one flip max, then cooldown
+        this.bottomAccum += deltaY;
+        if (!coolingDown && (impulse || this.bottomAccum > OVERSHOOT_PX)) {
             this.lastFlipAt = now;
+            this.bottomAccum = 0;
             this.step(1);
         }
     }
@@ -182,7 +219,7 @@ export default class Portfolio360 extends LightningElement {
 
     isAtPageBottom() {
         const doc = document.documentElement;
-        return window.innerHeight + window.scrollY >= doc.scrollHeight - 16;
+        return window.innerHeight + window.scrollY >= doc.scrollHeight - BOTTOM_ZONE_PX;
     }
 
     ensureTopVisible() {
