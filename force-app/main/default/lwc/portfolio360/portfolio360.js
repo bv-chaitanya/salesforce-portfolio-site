@@ -158,8 +158,6 @@ export default class Portfolio360 extends LightningElement {
         }
         if (land === 'top') {
             this.ensureTopVisible();
-        } else if (land === 'bottom') {
-            this.landAtBottom();
         }
     }
 
@@ -225,8 +223,8 @@ export default class Portfolio360 extends LightningElement {
             if (!coolingDown && (impulse || this.topAccum > OVERSHOOT_PX)) {
                 this.lastFlipAt = now;
                 this.topAccum = 0;
-                // previous page, landing at its bottom for scroll continuity
-                this.step(-1, 'bottom');
+                // previous page — always shown from its top, like every switch
+                this.step(-1);
             }
         }
     }
@@ -255,7 +253,7 @@ export default class Portfolio360 extends LightningElement {
         } else if (deltaY > SWIPE_MIN_PX && Math.abs(deltaY) > Math.abs(deltaX)
             && this.isAtPageTop()) {
             // swiping down at the start of a page moves back one
-            this.step(-1, 'bottom');
+            this.step(-1);
         }
     }
 
@@ -274,20 +272,6 @@ export default class Portfolio360 extends LightningElement {
         if (wrap && wrap.getBoundingClientRect().top < 0) {
             wrap.scrollIntoView({ behavior: this.preferredBehavior(), block: 'start' });
         }
-    }
-
-    landAtBottom() {
-        // double rAF: wait for the re-render before measuring the new height
-        // eslint-disable-next-line @lwc/lwc/no-async-operation
-        requestAnimationFrame(() => {
-            // eslint-disable-next-line @lwc/lwc/no-async-operation
-            requestAnimationFrame(() => {
-                const doc = document.documentElement;
-                const top = Math.max(0, doc.scrollHeight - window.innerHeight - 4);
-                window.scrollTo({ top, behavior: 'auto' });
-                this.prevScrollY = window.scrollY;
-            });
-        });
     }
 
     preferredBehavior() {
