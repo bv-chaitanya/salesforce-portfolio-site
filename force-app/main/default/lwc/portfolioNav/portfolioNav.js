@@ -12,8 +12,8 @@ const SECTIONS = [
 const LAST_SECTION_ID = SECTIONS[SECTIONS.length - 1].id;
 const SPY_RETRY_MS = 300;
 const SPY_MAX_RETRIES = 10;
-// hero is "gone" once its bottom passes this viewport offset
-const NAME_CHIP_TRIGGER_PX = 96;
+// the big hero name sits ~240px into the hero — reveal the chip as it exits
+const NAME_REVEAL_OFFSET_PX = 240;
 const BOTTOM_EPSILON_PX = 8;
 
 export default class PortfolioNav extends LightningElement {
@@ -48,6 +48,7 @@ export default class PortfolioNav extends LightningElement {
             this.trySetupObserver(0);
             this.boundScroll = () => this.queueScrollUpdate();
             window.addEventListener('scroll', this.boundScroll, { passive: true });
+            this.queueScrollUpdate();
         }
     }
 
@@ -93,7 +94,7 @@ export default class PortfolioNav extends LightningElement {
     onScrollFrame() {
         const hero = document.querySelector(SECTIONS[0].selector);
         if (hero) {
-            this.showName = hero.getBoundingClientRect().bottom < NAME_CHIP_TRIGGER_PX;
+            this.showName = hero.getBoundingClientRect().top < -NAME_REVEAL_OFFSET_PX;
         }
         // The observer's trigger band can never reach the last section when the
         // page bottoms out first — force it active at the end of the scroll.

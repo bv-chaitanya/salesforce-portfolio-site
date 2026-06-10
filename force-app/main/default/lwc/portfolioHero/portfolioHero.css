@@ -135,39 +135,34 @@
     transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-/* the single tinted primary action — everything else stays neutral */
+/* glass pills — same material as the dock buttons */
+.btn-solid,
+.btn-solid:visited,
+.btn-outline,
+.btn-outline:visited {
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    color: #1d1d1f;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.62));
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
 .btn-solid,
 .btn-solid:visited {
-    background: var(--accent);
-    color: #ffffff;
-    box-shadow:
-        0 6px 16px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    font-weight: 700;
 }
 
 .btn-solid:hover,
 .btn-solid:focus,
-.btn-solid:active {
-    background: #000000;
-    color: #ffffff;
-    text-decoration: none;
-    transform: translateY(-1px);
-}
-
-.btn-outline,
-.btn-outline:visited {
-    border: 1px solid rgba(228, 228, 233, 0.95);
-    color: var(--accent);
-    background: rgba(255, 255, 255, 0.75);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 1);
-}
-
+.btn-solid:active,
 .btn-outline:hover,
 .btn-outline:focus,
 .btn-outline:active {
     background: #ffffff;
-    color: var(--accent);
+    color: #000000;
     text-decoration: none;
+    transform: translateY(-1px);
 }
 
 .summary {

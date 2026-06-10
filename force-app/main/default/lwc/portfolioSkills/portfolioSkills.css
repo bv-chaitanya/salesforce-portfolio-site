@@ -21,21 +21,20 @@
 }
 
 .section-title {
-    font-size: clamp(1.4rem, 4vw, 1.75rem);
-    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+    font-weight: 700;
     letter-spacing: -0.01em;
-    margin: 0 0 1.5rem;
-    color: #0f172a;
-}
-
-.section-title::before {
-    content: '';
-    display: block;
-    width: 2.75rem;
-    height: 3px;
+    margin: 0 0 1.25rem;
+    color: #1d1d1f;
+    padding: 0.55rem 1.3rem;
     border-radius: 999px;
-    background: var(--accent);
-    margin-bottom: 0.6rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.6));
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .grid {

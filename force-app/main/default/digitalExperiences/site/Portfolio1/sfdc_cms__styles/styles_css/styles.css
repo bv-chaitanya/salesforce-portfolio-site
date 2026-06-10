@@ -1,5 +1,5 @@
 /*
- * Global site styles — clean neutral canvas; the glass carries the design.
+ * Global site styles — one flat neutral canvas, no gradients, no seams.
  */
 html,
 body {
@@ -14,9 +14,9 @@ html {
 body {
     margin: 0;
     min-height: 100%;
+    background: #f5f5f7;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    background: linear-gradient(180deg, #fafafc 0%, #f5f5f7 55%, #f1f1f4 100%);
 }
 
 @media (prefers-reduced-motion: reduce) {
