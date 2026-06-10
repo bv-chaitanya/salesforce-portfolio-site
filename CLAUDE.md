@@ -7,8 +7,10 @@ Everything renders from records — content updates happen by editing records, n
 
 - **Alias**: `portfolio` | **Org**: `chap-dev-ed.my.salesforce.com` (Developer Edition, API 66.0)
 - **GitHub**: https://github.com/bv-chaitanya/salesforce-portfolio-site (public, personal account).
-  The remote URL embeds `bv-chaitanya@` so pushes use the personal token even though the
-  machine's active `gh` account is the work one (`rax-chaitu`) — don't "fix" the remote URL.
+  This machine's active `gh` account is the work one (`rax-chaitu`), so this repo has a
+  **repo-local** `credential.helper` that pulls the personal token via
+  `gh auth token -u bv-chaitanya` (see `.git/config`). Don't "fix" the remote URL or the
+  helper, and don't `gh auth logout bv-chaitanya` — pushes here depend on it.
 - Deploy directly (no scratch orgs): `sf project deploy start -o portfolio`
 - Run tests: `sf apex run test -o portfolio -l RunLocalTests -w 10 -r human -c`
 - Target site: Experience Cloud **LWR** ("Build Your Own (LWR)" template), public guest access
