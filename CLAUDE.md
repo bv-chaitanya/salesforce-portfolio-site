@@ -22,7 +22,7 @@ Portfolio Admin page), never code. Live: https://chap-dev-ed.my.site.com/
 ```bash
 sf project deploy start -o portfolio                  # deploy (whole project is safe)
 sf apex run test -o portfolio -l RunLocalTests -w 10 -r human -c
-npm run test:unit                                     # LWC Jest (24 tests: nav/360/hero/experience/skills)
+npm run test:unit                                     # LWC Jest (33 tests: nav/360/hero/experience/skills/items/switcher)
 npm run lint                                          # official @salesforce/eslint-config-lwc — keep at 0
 sf community publish --name Portfolio -o portfolio    # REQUIRED after any digitalExperiences change
 ```
@@ -33,7 +33,7 @@ controllers at 100% coverage). Only allowed lint suppressions: the documented
 
 ## Architecture
 
-**Data (7 custom objects)** — all have `Display_Order__c` (Number) + `Is_Active__c`
+**Data (8 custom objects)** — all have `Display_Order__c` (Number) + `Is_Active__c`
 (Checkbox, default TRUE; drives ordering and guest sharing rules). **Multi-profile**:
 `Portfolio_Profile__c` is the parent persona; Experience/Skill_Group/Certification/
 Education/Award each have a `Profile__c` lookup (Projects inherit via their Job).
@@ -42,7 +42,10 @@ Records with a blank Profile__c never render publicly — always set it.
 initials fallback), `Experience__c` (jobs; blank end date or `Is_Current__c` renders
 "Present"), `Project__c` (child of Experience via `Job__c`, rel name `Projects`),
 `Skill_Group__c` (one per category; `Skills__c` is **semicolon-delimited** → chips, same
-convention as `Project__c.Tech_Stack__c`), `Certification__c`, `Education__c`, `Award__c`.
+convention as `Project__c.Tech_Stack__c`), `Certification__c`, `Education__c`, `Award__c`,
+and `Portfolio_Item__c` — the **dynamic sections engine**: `Section__c` (free text) groups
+items into record-driven site sections ("Publications", "Speaking"…) with
+`Section_Order__c`, Subtitle, rich-text Description, Date Label, Link URL/Label, Tags.
 
 **Apex**: `PortfolioController` — public site reads. `with sharing`, cacheable methods,
 typed inner DTOs, active-only + Display_Order ordering, parent-child subquery for
@@ -50,13 +53,13 @@ projects. All section methods take `profileId`: null resolves to the FIRST activ
 profile; explicit ids are honored only when that profile is active; **no active
 profiles = master kill switch: the hero shows ONE "No active profiles" glass card
 and the dock, tabs, and every section hide entirely** (components share the
-cacheable `getProfiles` wire to detect it). `getProfiles()` also feeds the switcher. **`Phone__c` is never queried — privacy by design on a public site.**
+cacheable `getProfiles` wire to detect it). `getProfiles()` also feeds the switcher; `getItemSections()` groups Portfolio_Item__c records into ordered dynamic sections. **`Phone__c` is never queried — privacy by design on a public site.**
 `PortfolioAdminController` — internal admin reads (ALL records incl. inactive),
 object allowlist, never granted to the guest profile.
 
 **Public site LWCs**: section components (`portfolioHero`, `portfolioExperience`,
-`portfolioSkills`, `portfolioCertifications`, `portfolioEducation`, `portfolioAwards`)
-each with loading/empty/error states and an `@api hideTitle`. Composition is a **scroll-snap
+`portfolioSkills`, `portfolioCertifications`, `portfolioEducation`, `portfolioAwards`,
+plus `portfolioItems` for the dynamic sections) each with loading/empty/error states. Composition is a **scroll-snap
 flow**: `portfolio360` stacks the panels in tab order (CSS `scroll-snap-type: y
 proximity` on html; each panel `scroll-snap-align: start`, ~viewport min-height) so
 scrolling settles tab by tab. It owns an IntersectionObserver that broadcasts
@@ -67,8 +70,8 @@ events and every profile-aware component (hero, nav chip, all sections) re-queri
 `portfolioNav` — the floating liquid-glass bottom dock — dispatches
 `portfolio360navigate` (portfolio360 scrolls the panel into view itself), follows
 `portfolio360tabinview` broadcasts (ignored when `scrollY < 140` — About wins at top),
-sliding active-pill indicator (FLIP transform), and a name chip that appears when the
-hero name scrolls out. Rich text renders via `lightning-formatted-rich-text`.
+shows a "More" item only when dynamic items exist, sliding active-pill indicator
+(FLIP transform), and a name chip that appears when the hero name scrolls out. Rich text renders via `lightning-formatted-rich-text`.
 
 **Design system (liquid glass)**: vivid pastel mesh + hard-edged discs live in the
 **mainAppPage `headMarkup` inline `<style>`** — glass needs color/edges behind it or
@@ -89,7 +92,7 @@ with confirm (profile delete warns that children lose their link). Targets
 `lightning__AppPage`/`HomePage` only — it cannot be placed on the Experience site, and
 the guest profile has no access to its controller.
 
-**Guest security model**: guest profile = object Read ×7 + FLS on rendered fields only
+**Guest security model**: guest profile = object Read ×8 + FLS on rendered fields only
 (no Phone) + access to `PortfolioController` only. Criteria-based **guest sharing
 rules** (`Is_Active__c = TRUE → Read`) are the only door through Private external OWD.
 Unchecking `Is_Active__c` hides a record from the site instantly.
@@ -107,7 +110,8 @@ Unchecking `Is_Active__c` hides a record from the site instantly.
   `Display_Order__c` orders items; fields: Subtitle, rich-text Description, Date Label,
   Link URL/Label, Tags (semicolon → chips). Only build a dedicated object when the
   content needs a bespoke layout (like the Experience timeline):
-- **New DEDICATED section (object)**: object w/ the two convention fields + guest sharing rule +
+- **New DEDICATED section (object)**: object w/ the three convention fields
+  (Display_Order, Is_Active, Profile lookup) + guest sharing rule +
   permset entries + DTO/controller method + section LWC + panel in `portfolio360` +
   dock item in `portfolioNav` + admin: tab entry in `portfolioAdmin` OBJECTS + entry in
   `PortfolioAdminController.ALLOWED_OBJECTS`.
@@ -154,7 +158,9 @@ deliberately never committed) → set Photo_URL to the static resource URL → p
 
 ## Status
 
-All phases complete (2026-06-10): schema, Apex (46/46 tests, 100% coverage both
-controllers), LWCs (+ Jest 24/24, lint 0), guest access verified by SOQL, data loaded,
-site live with liquid-glass tabbed UI, admin page, photo, OG tags. No open items beyond
-monthly org login.
+Complete as of 2026-06-10. Schema (8 objects, multi-profile), Apex 50/50 tests with
+both controllers at 100% coverage, Jest 33/33, lint 0, guest access verified by SOQL.
+Site live: liquid-glass design, scroll-snap tab flow with dock spy, profile switcher
+rail (2+ active profiles), single "No active profiles" kill-switch state, dynamic
+record-driven sections (Portfolio_Item__c → "More"), profile-scoped admin workspace,
+photo static resource, OG tags. No open items beyond monthly org login.

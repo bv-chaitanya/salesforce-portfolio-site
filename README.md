@@ -22,8 +22,11 @@ Records ──> PortfolioController (Apex, cacheable) ──> LWCs ──> publi
 
 ### Data model
 
-Seven custom objects, each with `Display_Order__c` (ordering) and `Is_Active__c`
-(visibility — also the criteria for guest sharing rules):
+Eight custom objects, each with `Display_Order__c` (ordering) and `Is_Active__c`
+(visibility — also the criteria for guest sharing rules). Content objects link to a
+`Portfolio_Profile__c` persona — the site supports **multiple switchable profiles**
+(a floating avatar rail appears when 2+ are active), and deactivating every profile
+takes the whole site down to a single "No active profiles" card:
 
 | Object | Drives | Notes |
 |---|---|---|
@@ -34,6 +37,7 @@ Seven custom objects, each with `Display_Order__c` (ordering) and `Is_Active__c`
 | `Certification__c` | Cert cards | Optional credential verification link |
 | `Education__c` | Education | |
 | `Award__c` | Awards | |
+| `Portfolio_Item__c` | **Dynamic sections** | A `Section` name on a record creates a new site section — zero code |
 
 ### Apex
 
@@ -45,12 +49,12 @@ controller can't leak it by design.
 
 Tests: [`PortfolioControllerTest`](force-app/main/default/classes/PortfolioControllerTest.cls) —
 filtering, ordering, nesting, delimiter parsing, and empty-data paths. 100% coverage
-on both controllers, 24 LWC Jest tests, and zero ESLint problems under the official
+on both controllers, 33 LWC Jest tests, and zero ESLint problems under the official
 `@salesforce/eslint-config-lwc` ruleset.
 
-Content is managed through an internal **Portfolio Content Manager** app page
-(record picker + describe-driven edit form), so updating the portfolio never
-touches code.
+Content is managed through an internal **Portfolio Content Manager** app page —
+pick a working profile (searchable), and every tab scopes to it with describe-driven
+edit forms and auto-linked new records — so updating the portfolio never touches code.
 
 ### LWC
 
