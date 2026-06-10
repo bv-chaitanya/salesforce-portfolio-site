@@ -37,32 +37,8 @@
                     },
                     {
                       "attributes": {},
-                      "definition": "c:portfolioExperience",
-                      "id": "3047541a-4379-4625-adcd-0426c4df3a47",
-                      "type": "component"
-                    },
-                    {
-                      "attributes": {},
-                      "definition": "c:portfolioSkills",
-                      "id": "d88de2a7-dae5-4bd8-93a8-9743024ce5ab",
-                      "type": "component"
-                    },
-                    {
-                      "attributes": {},
-                      "definition": "c:portfolioCertifications",
-                      "id": "9b0e8e85-14bc-48af-b5dc-3e79b44df236",
-                      "type": "component"
-                    },
-                    {
-                      "attributes": {},
-                      "definition": "c:portfolioEducation",
-                      "id": "4592ec2a-cecc-45a2-a01a-b9024796b51d",
-                      "type": "component"
-                    },
-                    {
-                      "attributes": {},
-                      "definition": "c:portfolioAwards",
-                      "id": "f0721721-a07b-4c5a-ba84-0069dd3f82cc",
+                      "definition": "c:portfolio360",
+                      "id": "da59a83f-4d65-43b7-ada6-3b64590267ad",
                       "type": "component"
                     }
                   ],

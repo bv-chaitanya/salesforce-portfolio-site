@@ -33,9 +33,15 @@ Everything renders from records — content updates happen by editing records, n
    DTOs). Record visibility for guests comes from criteria-based guest sharing rules;
    FLS comes from the guest profile. Skill splitting happens in Apex, not JS.
 4. **LWC**: one component per section (hero, experience timeline w/ nested projects,
-   skills, certifications, education, awards) plus `portfolioNav` — a floating liquid-glass
-   dock fixed bottom-center with IntersectionObserver scroll-spy (progressive enhancement;
-   selectors target the section host elements, e.g. `c-portfolio-hero`). Liquid-glass design system: gradient mesh page background (site styles.css),
+   skills, certifications, education, awards), composed as a tabbed 360 view:
+   `portfolio360` renders the sections as panels (hash deep links #experience etc.,
+   passes `hide-title` to children), and `portfolioNav` — the floating liquid-glass
+   bottom dock — is the single nav: it dispatches `portfolio360navigate` window events
+   to switch tabs, scrolls to hero for About, and shows a name chip once the hero name
+   scrolls away. `portfolioAdmin` (+ `PortfolioAdminController`, FlexiPage
+   `Portfolio_Admin`, tab "Portfolio Admin") is the internal content manager: per-object
+   datatables, inline edit incl. Is_Active toggle, delete, create. Never grant
+   PortfolioAdminController to the guest profile. Liquid-glass design system: gradient mesh page background (site styles.css),
    translucent cards (rgba white + inset highlight — backdrop-filter only on the dock and
    hero summary for performance), custom mobile-first CSS, no SLDS utilities, no external JS. Rich text renders via
    `lightning-formatted-rich-text` (LWR-supported base component). Every component has

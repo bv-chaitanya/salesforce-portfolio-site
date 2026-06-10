@@ -1,6 +1,6 @@
 <template>
     <section class="section">
-        <h2 class="section-title">Certifications</h2>
+        <h2 lwc:if={showTitle} class="section-title">Certifications</h2>
         <template lwc:if={isReady}>
             <div class="grid">
                 <template for:each={certifications} for:item="cert">

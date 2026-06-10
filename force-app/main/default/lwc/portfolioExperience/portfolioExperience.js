@@ -1,4 +1,4 @@
-import { LightningElement, wire } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
 import getExperiences from '@salesforce/apex/PortfolioController.getExperiences';
 
 const MONTH_YEAR = { month: 'short', year: 'numeric' };
@@ -26,6 +26,7 @@ function splitList(raw) {
 }
 
 export default class PortfolioExperience extends LightningElement {
+    @api hideTitle = false;
     jobs = [];
     state = 'loading';
 
@@ -56,6 +57,10 @@ export default class PortfolioExperience extends LightningElement {
             }));
             this.state = this.jobs.length ? 'ready' : 'empty';
         }
+    }
+
+    get showTitle() {
+        return !this.hideTitle;
     }
 
     get isReady() {

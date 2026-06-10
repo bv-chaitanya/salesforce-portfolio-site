@@ -1,40 +1,41 @@
 import { LightningElement } from 'lwc';
 
-const TABS = [
-    { id: 'experience', label: 'Experience' },
-    { id: 'skills', label: 'Skills' },
-    { id: 'certifications', label: 'Certifications' },
-    { id: 'education', label: 'Education & Awards' }
-];
+// Fired by c-portfolio-nav (the floating dock) — the single navigation surface.
+const NAVIGATE_EVENT = 'portfolio360navigate';
+const TABS = ['experience', 'skills', 'certifications', 'education'];
 
 export default class Portfolio360 extends LightningElement {
-    activeTab = TABS[0].id;
+    activeTab = TABS[0];
 
     connectedCallback() {
         try {
             const hash = window.location.hash.replace('#', '').toLowerCase();
-            if (TABS.some((tab) => tab.id === hash)) {
+            if (TABS.includes(hash)) {
                 this.activeTab = hash;
             }
         } catch (e) {
             // hash routing is a nice-to-have; never break rendering over it
         }
+        this.boundNavigate = (event) => this.handleNavigate(event);
+        window.addEventListener(NAVIGATE_EVENT, this.boundNavigate);
     }
 
-    get tabs() {
-        return TABS.map((tab) => ({
-            ...tab,
-            cssClass: tab.id === this.activeTab ? 'tab active' : 'tab',
-            selected: tab.id === this.activeTab ? 'true' : 'false'
-        }));
+    disconnectedCallback() {
+        if (this.boundNavigate) {
+            window.removeEventListener(NAVIGATE_EVENT, this.boundNavigate);
+            this.boundNavigate = undefined;
+        }
     }
 
-    handleTabClick(event) {
-        this.activeTab = event.currentTarget.dataset.id;
-        try {
-            window.history.replaceState(null, '', `#${this.activeTab}`);
-        } catch (e) {
-            // ignore — see above
+    handleNavigate(event) {
+        const tabId = event.detail && event.detail.tabId;
+        if (TABS.includes(tabId)) {
+            this.activeTab = tabId;
+            try {
+                window.history.replaceState(null, '', `#${tabId}`);
+            } catch (e) {
+                // ignore — see above
+            }
         }
     }
 

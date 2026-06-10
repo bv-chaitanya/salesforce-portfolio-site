@@ -1,7 +1,8 @@
-import { LightningElement, wire } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
 import getCertifications from '@salesforce/apex/PortfolioController.getCertifications';
 
 export default class PortfolioCertifications extends LightningElement {
+    @api hideTitle = false;
     certifications = [];
     state = 'loading';
 
@@ -16,6 +17,10 @@ export default class PortfolioCertifications extends LightningElement {
             }));
             this.state = this.certifications.length ? 'ready' : 'empty';
         }
+    }
+
+    get showTitle() {
+        return !this.hideTitle;
     }
 
     get isReady() {

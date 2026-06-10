@@ -1,17 +1,5 @@
 <template>
     <div class="wrap">
-        <nav class="tabbar" role="tablist" aria-label="Portfolio sections">
-            <template for:each={tabs} for:item="tab">
-                <button
-                    key={tab.id}
-                    class={tab.cssClass}
-                    data-id={tab.id}
-                    role="tab"
-                    aria-selected={tab.selected}
-                    onclick={handleTabClick}
-                >{tab.label}</button>
-            </template>
-        </nav>
         <div class={experiencePanelClass} role="tabpanel">
             <c-portfolio-experience hide-title="true"></c-portfolio-experience>
         </div>

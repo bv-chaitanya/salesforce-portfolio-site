@@ -4,6 +4,10 @@
         <apexClass>PortfolioController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>PortfolioAdminController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <fieldPermissions>
         <editable>true</editable>
         <field>Portfolio_Profile__c.Headline__c</field>
@@ -295,6 +299,10 @@
     </tabSettings>
     <tabSettings>
         <tab>Award__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Portfolio_Admin</tab>
         <visibility>Visible</visibility>
     </tabSettings>
 </PermissionSet>

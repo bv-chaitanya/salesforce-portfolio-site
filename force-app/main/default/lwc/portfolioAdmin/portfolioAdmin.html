@@ -1,0 +1,44 @@
+<template>
+    <lightning-card title="Portfolio Content Manager" icon-name="custom:custom18">
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+            <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">
+                Everything here drives the public site. Uncheck <strong>Active</strong> to hide
+                something instantly; edit inline and Save; use Open for long text and rich text fields.
+            </p>
+            <lightning-tabset variant="scoped" active-tab-value={activeObject} onactive={handleTabActive}>
+                <lightning-tab label="Profile" value="Portfolio_Profile__c"></lightning-tab>
+                <lightning-tab label="Experience" value="Experience__c"></lightning-tab>
+                <lightning-tab label="Projects" value="Project__c"></lightning-tab>
+                <lightning-tab label="Skills" value="Skill_Group__c"></lightning-tab>
+                <lightning-tab label="Certifications" value="Certification__c"></lightning-tab>
+                <lightning-tab label="Education" value="Education__c"></lightning-tab>
+                <lightning-tab label="Awards" value="Award__c"></lightning-tab>
+            </lightning-tabset>
+            <div class="slds-grid slds-grid_align-spread slds-m-vertical_x-small">
+                <p class="slds-text-body_small slds-text-color_weak slds-align-middle">{rowCountLabel}</p>
+                <lightning-button label="New" icon-name="utility:add" onclick={handleNew}></lightning-button>
+            </div>
+            <template lwc:if={isLoading}>
+                <div class="slds-is-relative slds-p-around_large">
+                    <lightning-spinner alternative-text="Loading records" size="small"></lightning-spinner>
+                </div>
+            </template>
+            <template lwc:elseif={loadError}>
+                <p class="slds-text-color_error slds-p-around_small">{loadError}</p>
+            </template>
+            <template lwc:else>
+                <lightning-datatable
+                    key-field="Id"
+                    data={rows}
+                    columns={columns}
+                    draft-values={draftValues}
+                    hide-checkbox-column
+                    show-row-number-column
+                    onsave={handleSave}
+                    oncancel={handleCancel}
+                    onrowaction={handleRowAction}
+                ></lightning-datatable>
+            </template>
+        </div>
+    </lightning-card>
+</template>

@@ -1,6 +1,6 @@
 <template>
     <section class="section">
-        <h2 class="section-title">Experience</h2>
+        <h2 lwc:if={showTitle} class="section-title">Experience</h2>
         <template lwc:if={isReady}>
             <ol class="timeline">
                 <template for:each={jobs} for:item="job">

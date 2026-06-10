@@ -1,7 +1,8 @@
-import { LightningElement, wire } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
 import getSkillGroups from '@salesforce/apex/PortfolioController.getSkillGroups';
 
 export default class PortfolioSkills extends LightningElement {
+    @api hideTitle = false;
     groups = [];
     state = 'loading';
 
@@ -20,6 +21,10 @@ export default class PortfolioSkills extends LightningElement {
             }));
             this.state = this.groups.length ? 'ready' : 'empty';
         }
+    }
+
+    get showTitle() {
+        return !this.hideTitle;
     }
 
     get isReady() {
