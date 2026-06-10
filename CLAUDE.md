@@ -65,7 +65,10 @@ gaps) and switches with a horizontal slide (entering page slides from the direct
 travel). Pages flip via dock clicks, horizontal trackpad scroll (dominant deltaX,
 cooldown-throttled), touch swipe (`touch-action: pan-y` keeps vertical scroll native),
 or **vertical scroll past the page bottom** (wheel or upward swipe at the end advances
-to the next tab in order — going back is horizontal/dock only). It broadcasts `portfolio360tabinview` (+ hash sync) on every change;
+to the next tab in order — going back is horizontal/dock only). Wheel paging is
+gesture-gated (momentum/inertia events never flip). **Returning to the top (About zone,
+scrollY < 140) resets the pager to the first tab** so scrolling down always restarts
+the reading sequence. It broadcasts `portfolio360tabinview` (+ hash sync) on every change;
 `portfolioProfileSwitcher` — floating LEFT glass rail of circular avatar tabs, shown
 only when 2+ profiles are active; clicking broadcasts `portfolioprofilechange` window
 events and every profile-aware component (hero, nav chip, all sections) re-queries.

@@ -12,12 +12,16 @@ const WHEEL_COOLDOWN_MS = 550;
 const GESTURE_GAP_MS = 250;
 const WHEEL_MIN_DELTA = 30;
 const SWIPE_MIN_PX = 60;
+// scrolled into this zone = back at the hero ("About"); the page sequence restarts
+const TOP_ZONE_PX = 140;
 
 export default class Portfolio360 extends LightningElement {
     activeTab = TABS[0];
     slideClass = '';
     lastFlipAt = 0;
     lastWheelEventAt = 0;
+    prevScrollY = 0;
+    scrollTicking = false;
     touchStartX = 0;
     touchStartY = 0;
 
@@ -45,6 +49,9 @@ export default class Portfolio360 extends LightningElement {
         }
         this.boundNavigate = (event) => this.handleNavigate(event);
         window.addEventListener(NAVIGATE_EVENT, this.boundNavigate);
+        this.prevScrollY = window.scrollY;
+        this.boundScroll = () => this.queueScrollCheck();
+        window.addEventListener('scroll', this.boundScroll, { passive: true });
     }
 
     disconnectedCallback() {
@@ -52,6 +59,32 @@ export default class Portfolio360 extends LightningElement {
             window.removeEventListener(NAVIGATE_EVENT, this.boundNavigate);
             this.boundNavigate = undefined;
         }
+        if (this.boundScroll) {
+            window.removeEventListener('scroll', this.boundScroll);
+            this.boundScroll = undefined;
+        }
+    }
+
+    queueScrollCheck() {
+        if (this.scrollTicking) {
+            return;
+        }
+        this.scrollTicking = true;
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        requestAnimationFrame(() => {
+            this.scrollTicking = false;
+            this.onScrollFrame();
+        });
+    }
+
+    // coming back up to the hero restarts the sequence: the next scroll-down
+    // reads from the FIRST tab again instead of wherever the visitor left off
+    onScrollFrame() {
+        const y = window.scrollY;
+        if (y < TOP_ZONE_PX && this.prevScrollY >= TOP_ZONE_PX && this.activeTab !== TABS[0]) {
+            this.switchTo(TABS[0], false);
+        }
+        this.prevScrollY = y;
     }
 
     handleNavigate(event) {
@@ -59,14 +92,15 @@ export default class Portfolio360 extends LightningElement {
         this.switchTo(tabId);
     }
 
-    switchTo(tabId) {
+    switchTo(tabId, animate = true) {
         if (!TABS.includes(tabId) || tabId === this.activeTab) {
             return;
         }
         // entering page slides in from the direction of travel
-        this.slideClass = TABS.indexOf(tabId) > TABS.indexOf(this.activeTab)
-            ? 'slide-from-right'
-            : 'slide-from-left';
+        this.slideClass = !animate ? ''
+            : TABS.indexOf(tabId) > TABS.indexOf(this.activeTab)
+                ? 'slide-from-right'
+                : 'slide-from-left';
         this.activeTab = tabId;
         window.dispatchEvent(new CustomEvent(TAB_IN_VIEW_EVENT, { detail: { tabId } }));
         try {

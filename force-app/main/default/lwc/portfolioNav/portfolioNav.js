@@ -75,9 +75,11 @@ export default class PortfolioNav extends LightningElement {
         window.addEventListener('portfolioprofilechange', this.boundProfileChange);
         this.boundTabInView = (event) => {
             const tabId = event.detail && event.detail.tabId;
-            if (TAB_IDS.has(tabId) && window.scrollY >= 140) {
-                this.activeId = tabId;
+            if (TAB_IDS.has(tabId)) {
                 this.lastTabId = tabId;
+                if (window.scrollY >= 140) {
+                    this.activeId = tabId;
+                }
             }
         };
         window.addEventListener(TAB_IN_VIEW_EVENT, this.boundTabInView);

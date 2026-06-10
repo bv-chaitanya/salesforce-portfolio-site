@@ -142,6 +142,23 @@ describe('c-portfolio360', () => {
         expect(visibleTabs(element)).toEqual(['experience']);
     });
 
+    it('restarts at the first tab after returning to the top', async () => {
+        const element = create();
+        window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'education' } }));
+        await flush();
+        expect(visibleTabs(element)).toEqual(['education']);
+
+        Object.defineProperty(window, 'scrollY', { value: 600, configurable: true });
+        window.dispatchEvent(new CustomEvent('scroll'));
+        await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
+        Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+        window.dispatchEvent(new CustomEvent('scroll'));
+        await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
+        expect(visibleTabs(element)).toEqual(['experience']);
+    });
+
     it('stops listening after disconnect', async () => {
         const element = create();
         document.body.removeChild(element);
