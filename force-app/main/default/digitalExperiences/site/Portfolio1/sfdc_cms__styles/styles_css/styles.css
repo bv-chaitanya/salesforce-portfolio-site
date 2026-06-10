@@ -1,20 +1,22 @@
 /*
- * Global site styles — one flat neutral canvas, no gradients, no seams.
+ * Global site styles — one flat neutral canvas.
+ * NOTE: no `height: 100%` on html/body — that caps the body's background
+ * paint box at one viewport height and draws a seam exactly one screen down.
+ * !important defends against later-injected theme sheets.
  */
 html,
 body {
-    height: 100%;
+    min-height: 100%;
 }
 
 html {
-    background: #f5f5f7;
+    background: #f5f5f7 !important;
     scroll-behavior: smooth;
 }
 
 body {
     margin: 0;
-    min-height: 100%;
-    background: #f5f5f7;
+    background: #f5f5f7 !important;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }
