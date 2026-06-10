@@ -74,3 +74,29 @@
         padding: 2.5rem 2rem 3.5rem;
     }
 }
+
+/* --- polish pass --- */
+.section-title {
+    color: #0f172a;
+}
+
+.section-title::before {
+    content: '';
+    display: block;
+    width: 2.75rem;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0b5cab, #1589ee);
+    margin-bottom: 0.6rem;
+}
+
+.card {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(11, 92, 171, 0.12);
+    border-color: #bcd6f0;
+}

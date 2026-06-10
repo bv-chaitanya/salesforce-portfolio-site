@@ -51,8 +51,8 @@ Everything renders from records — content updates happen by editing records, n
 - [x] Phase 2 — objects, Apex, tests (deployed 2026-06-10; 16/16 pass, controller 100% coverage)
 - [x] Phase 3 — LWCs (deployed)
 - [x] Phase 4 — guest access config (deployed 2026-06-10: guest profile read-only perms, no Phone FLS, 7 guest sharing rules `Is_Active__c=TRUE → Read`, site name `Portfolio`)
-- [ ] Phase 5 — data load (parsed content review → anonymous Apex insert)
-- [ ] Phase 6 — manual site creation + page composition checklist
+- [x] Phase 5 — data loaded 2026-06-10 via anonymous Apex (script kept out of repo — real contact data). Content edits now happen via object tabs in the org.
+- [x] Phase 6 — site `Portfolio` created manually; page composition done AS CODE via DigitalExperienceBundle (home view JSON = 6 stacked components), Home route `pageAccess: Public`, theme header region emptied + footer hidden (kills default grey strip), branding `BackgroundColor #f6f8fb`, `<title>` set in mainAppPage. Publish with: `sf community publish --name Portfolio -o portfolio`. Live: https://chap-dev-ed.my.site.com/  — pending: Photo_URL__c on the profile record.
 
 ## Conventions
 

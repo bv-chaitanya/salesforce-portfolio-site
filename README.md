@@ -3,7 +3,7 @@
 A public portfolio/resume website built **on Salesforce** — Experience Cloud (LWR),
 Apex, and Lightning Web Components. The site itself is the work sample.
 
-**Live site:** _coming soon_
+**Live site:** https://chap-dev-ed.my.site.com/
 
 ## Why Salesforce for a portfolio?
 

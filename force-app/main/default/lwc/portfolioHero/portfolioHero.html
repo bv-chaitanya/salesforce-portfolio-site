@@ -1,6 +1,7 @@
 <template>
     <section class="hero">
         <template lwc:if={isReady}>
+        <div class="hero-band">
             <div class="avatar">
                 <template lwc:if={showPhoto}>
                     <img
@@ -30,6 +31,7 @@
             <div lwc:if={profile.summary} class="summary">
                 <lightning-formatted-rich-text value={profile.summary}></lightning-formatted-rich-text>
             </div>
+        </div>
         </template>
         <p lwc:elseif={isError} class="state">Profile is unavailable right now.</p>
         <p lwc:elseif={isEmpty} class="state">No profile published yet.</p>

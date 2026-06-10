@@ -1,70 +1,108 @@
 {
-  "type" : "sfdc_cms__view",
-  "title" : "Home",
-  "contentBody" : {
-    "component" : {
-      "children" : [ {
-        "children" : [ {
-          "attributes" : {
-            "backgroundImageConfig" : "",
-            "backgroundImageOverlay" : "rgba(0,0,0,0)",
-            "componentSpacerSize" : "",
-            "layoutDirectionDesktop" : "row",
-            "layoutDirectionMobile" : "column",
-            "layoutDirectionTablet" : "column",
-            "maxContentWidth" : "",
-            "sectionColumnGutterWidth" : "",
-            "sectionConfig" : "{\"UUID\":\"f57fe373-ee85-476f-8531-54129eb7732b\",\"columns\":[{\"UUID\":\"c7f1a581-40a0-4083-a517-ec67a85e5608\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
-            "sectionMinHeight" : "",
-            "sectionVerticalAlign" : "flex-start"
-          },
-          "children" : [ {
-            "children" : [ {
-              "attributes" : {
-                "imageInfos" : "",
-                "richTextValue" : "<div style=\"display: flex; justify-content: center; align-items: center; margin: 50px 0; flex-direction: column; text-align: center;\"><div style=\"background-image: url(assets/img/desert.svg) !important; background-size: cover; background-position: center; height: 300px; width: 100%; max-width: 600px; min-width: 300px;\"></div><h1 class=\"slds-text-heading_medium slds-p-bottom_x-small\">Start Building Your Page</h1> <div>Drag and drop a component into the content slots.</div></div>"
+  "type": "sfdc_cms__view",
+  "title": "Home",
+  "contentBody": {
+    "component": {
+      "children": [
+        {
+          "children": [
+            {
+              "attributes": {
+                "backgroundImageConfig": "",
+                "backgroundImageOverlay": "rgba(0,0,0,0)",
+                "componentSpacerSize": "",
+                "layoutDirectionDesktop": "row",
+                "layoutDirectionMobile": "column",
+                "layoutDirectionTablet": "column",
+                "maxContentWidth": "",
+                "sectionColumnGutterWidth": "",
+                "sectionConfig": "{\"UUID\":\"f57fe373-ee85-476f-8531-54129eb7732b\",\"columns\":[{\"UUID\":\"c7f1a581-40a0-4083-a517-ec67a85e5608\",\"columnName\":\"Column 1\",\"columnKey\":\"col1\",\"columnWidth\":\"12\",\"seedComponents\":null}]}",
+                "sectionMinHeight": "",
+                "sectionVerticalAlign": "flex-start"
               },
-              "definition" : "community_builder:htmlEditor",
-              "id" : "418dc393-ffb6-45a9-96d5-9e5488592511",
-              "type" : "component"
-            } ],
-            "id" : "c7f1a581-40a0-4083-a517-ec67a85e5608",
-            "name" : "col1",
-            "title" : "Column 1",
-            "type" : "region"
-          } ],
-          "definition" : "community_layout:section",
-          "id" : "f57fe373-ee85-476f-8531-54129eb7732b",
-          "type" : "component"
-        } ],
-        "id" : "554ae171-ede4-4669-916b-6b440c8ba18d",
-        "name" : "content",
-        "title" : "Content",
-        "type" : "region"
-      }, {
-        "children" : [ {
-          "attributes" : {
-            "customHeadTags" : "",
-            "description" : "",
-            "pageTitle" : "Home",
-            "recordId" : "{!recordId}"
-          },
-          "definition" : "community_builder:seoAssistant",
-          "id" : "4be70afb-83e2-4af1-b3c2-aca8c2979b07",
-          "type" : "component"
-        } ],
-        "id" : "dadaff16-976d-44a8-abaa-46454f1521ab",
-        "name" : "sfdcHiddenRegion",
-        "title" : "sfdcHiddenRegion",
-        "type" : "region"
-      } ],
-      "definition" : "community_layout:sldsFlexibleLayout",
-      "id" : "e1f63b9a-1cd5-4cd2-9d9c-77ea1b3ed138",
-      "type" : "component"
+              "children": [
+                {
+                  "children": [
+                    {
+                      "attributes": {},
+                      "definition": "c:portfolioHero",
+                      "id": "4ebe3195-7fde-4bd1-b017-1b91f052036b",
+                      "type": "component"
+                    },
+                    {
+                      "attributes": {},
+                      "definition": "c:portfolioExperience",
+                      "id": "3047541a-4379-4625-adcd-0426c4df3a47",
+                      "type": "component"
+                    },
+                    {
+                      "attributes": {},
+                      "definition": "c:portfolioSkills",
+                      "id": "d88de2a7-dae5-4bd8-93a8-9743024ce5ab",
+                      "type": "component"
+                    },
+                    {
+                      "attributes": {},
+                      "definition": "c:portfolioCertifications",
+                      "id": "9b0e8e85-14bc-48af-b5dc-3e79b44df236",
+                      "type": "component"
+                    },
+                    {
+                      "attributes": {},
+                      "definition": "c:portfolioEducation",
+                      "id": "4592ec2a-cecc-45a2-a01a-b9024796b51d",
+                      "type": "component"
+                    },
+                    {
+                      "attributes": {},
+                      "definition": "c:portfolioAwards",
+                      "id": "f0721721-a07b-4c5a-ba84-0069dd3f82cc",
+                      "type": "component"
+                    }
+                  ],
+                  "id": "c7f1a581-40a0-4083-a517-ec67a85e5608",
+                  "name": "col1",
+                  "title": "Column 1",
+                  "type": "region"
+                }
+              ],
+              "definition": "community_layout:section",
+              "id": "f57fe373-ee85-476f-8531-54129eb7732b",
+              "type": "component"
+            }
+          ],
+          "id": "554ae171-ede4-4669-916b-6b440c8ba18d",
+          "name": "content",
+          "title": "Content",
+          "type": "region"
+        },
+        {
+          "children": [
+            {
+              "attributes": {
+                "customHeadTags": "",
+                "description": "Salesforce developer portfolio",
+                "pageTitle": "Portfolio",
+                "recordId": "{!recordId}"
+              },
+              "definition": "community_builder:seoAssistant",
+              "id": "4be70afb-83e2-4af1-b3c2-aca8c2979b07",
+              "type": "component"
+            }
+          ],
+          "id": "dadaff16-976d-44a8-abaa-46454f1521ab",
+          "name": "sfdcHiddenRegion",
+          "title": "sfdcHiddenRegion",
+          "type": "region"
+        }
+      ],
+      "definition": "community_layout:sldsFlexibleLayout",
+      "id": "e1f63b9a-1cd5-4cd2-9d9c-77ea1b3ed138",
+      "type": "component"
     },
-    "dataProviders" : [ ],
-    "themeLayoutType" : "Inner",
-    "viewType" : "home"
+    "dataProviders": [],
+    "themeLayoutType": "Inner",
+    "viewType": "home"
   },
-  "urlName" : "home"
+  "urlName": "home"
 }

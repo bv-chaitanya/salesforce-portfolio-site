@@ -1,5 +1,5 @@
 /*
- * Your global styles here
+ * Global site styles
  */
 html,
 body {
@@ -7,9 +7,12 @@ body {
 }
 
 html {
-    background: white;
+    background: #f6f8fb;
 }
 
 body {
     margin: 0;
+    background: #f6f8fb;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
