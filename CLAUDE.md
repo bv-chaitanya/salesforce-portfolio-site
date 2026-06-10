@@ -153,7 +153,9 @@ Unchecking `Is_Active__c` hides a record from the site instantly.
     (`profileId = null`) — null reaches Apex and resolves the default.
 13. Photo is an org `StaticResource` (`profilePhoto`, 512px JPEG) served at
     `https://chap-dev-ed.my.site.com/sfsites/c/resource/profilePhoto` — same origin, no
-    CSP concerns. OG link-preview meta tags live in headMarkup.
+    CSP concerns. OG link-preview meta tags live in headMarkup. **The image file is
+    deliberately NOT in the repo** (gitignored, scrubbed from history — repo is public);
+    on org rebuild, upload a local photo as the `profilePhoto` static resource manually.
 
 ## Disaster recovery (org loss)
 
