@@ -5,8 +5,20 @@ export default class PortfolioSkills extends LightningElement {
     @api hideTitle = false;
     groups = [];
     state = 'loading';
+    profileId;
 
-    @wire(getSkillGroups)
+    connectedCallback() {
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    @wire(getSkillGroups, { profileId: '$profileId' })
     wiredGroups({ data, error }) {
         if (error) {
             this.state = 'error';

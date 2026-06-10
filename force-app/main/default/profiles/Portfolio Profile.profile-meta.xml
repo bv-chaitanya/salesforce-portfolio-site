@@ -71,6 +71,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Experience__c.Profile__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Experience__c.Display_Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -126,6 +131,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Skill_Group__c.Profile__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Skill_Group__c.Display_Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -151,6 +161,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Certification__c.Profile__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Certification__c.Display_Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -171,6 +186,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>Education__c.Profile__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>Education__c.Display_Order__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -187,6 +207,11 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>Award__c.Description__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Award__c.Profile__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

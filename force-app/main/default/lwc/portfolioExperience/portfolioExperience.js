@@ -29,8 +29,20 @@ export default class PortfolioExperience extends LightningElement {
     @api hideTitle = false;
     jobs = [];
     state = 'loading';
+    profileId;
 
-    @wire(getExperiences)
+    connectedCallback() {
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    @wire(getExperiences, { profileId: '$profileId' })
     wiredExperiences({ data, error }) {
         if (error) {
             this.state = 'error';

@@ -20,11 +20,12 @@ export default class PortfolioNav extends LightningElement {
     activeId = 'about';
     lastTabId = 'experience';
     profileName;
+    profileId;
     showName = false;
     indicatorReady = false;
     scrollTicking = false;
 
-    @wire(getProfile)
+    @wire(getProfile, { profileId: '$profileId' })
     wiredProfile({ data }) {
         if (data) {
             this.profileName = data.fullName;
@@ -54,6 +55,10 @@ export default class PortfolioNav extends LightningElement {
         }
         this.boundScroll = () => this.queueScrollUpdate();
         window.addEventListener('scroll', this.boundScroll, { passive: true });
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
         this.queueScrollUpdate();
     }
 
@@ -65,6 +70,10 @@ export default class PortfolioNav extends LightningElement {
         if (this.boundScroll) {
             window.removeEventListener('scroll', this.boundScroll);
             this.boundScroll = undefined;
+        }
+        if (this.boundProfileChange) {
+            window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+            this.boundProfileChange = undefined;
         }
     }
 

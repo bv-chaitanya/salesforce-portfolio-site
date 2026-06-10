@@ -4,8 +4,20 @@ import getAwards from '@salesforce/apex/PortfolioController.getAwards';
 export default class PortfolioAwards extends LightningElement {
     awards = [];
     state = 'loading';
+    profileId;
 
-    @wire(getAwards)
+    connectedCallback() {
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    @wire(getAwards, { profileId: '$profileId' })
     wiredAwards({ data, error }) {
         if (error) {
             this.state = 'error';

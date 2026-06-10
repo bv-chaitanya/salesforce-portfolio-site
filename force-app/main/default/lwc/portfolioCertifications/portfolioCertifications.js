@@ -5,8 +5,20 @@ export default class PortfolioCertifications extends LightningElement {
     @api hideTitle = false;
     certifications = [];
     state = 'loading';
+    profileId;
 
-    @wire(getCertifications)
+    connectedCallback() {
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    @wire(getCertifications, { profileId: '$profileId' })
     wiredCertifications({ data, error }) {
         if (error) {
             this.state = 'error';

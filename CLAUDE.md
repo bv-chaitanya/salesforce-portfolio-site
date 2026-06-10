@@ -34,8 +34,11 @@ controllers at 100% coverage). Only allowed lint suppressions: the documented
 ## Architecture
 
 **Data (7 custom objects)** — all have `Display_Order__c` (Number) + `Is_Active__c`
-(Checkbox, default TRUE; drives ordering and guest sharing rules):
-`Portfolio_Profile__c` (hero/identity singleton; `Photo_URL__c` → plain `<img>` with
+(Checkbox, default TRUE; drives ordering and guest sharing rules). **Multi-profile**:
+`Portfolio_Profile__c` is the parent persona; Experience/Skill_Group/Certification/
+Education/Award each have a `Profile__c` lookup (Projects inherit via their Job).
+Records with a blank Profile__c never render publicly — always set it.
+`Portfolio_Profile__c` (hero/identity; `Photo_URL__c` → plain `<img>` with
 initials fallback), `Experience__c` (jobs; blank end date or `Is_Current__c` renders
 "Present"), `Project__c` (child of Experience via `Job__c`, rel name `Projects`),
 `Skill_Group__c` (one per category; `Skills__c` is **semicolon-delimited** → chips, same
@@ -43,7 +46,10 @@ convention as `Project__c.Tech_Stack__c`), `Certification__c`, `Education__c`, `
 
 **Apex**: `PortfolioController` — public site reads. `with sharing`, cacheable methods,
 typed inner DTOs, active-only + Display_Order ordering, parent-child subquery for
-projects. **`Phone__c` is never queried — privacy by design on a public site.**
+projects. All section methods take `profileId`: null resolves to the FIRST active
+profile; explicit ids are honored only when that profile is active; **no active
+profiles = everything returns empty (master kill switch — uncheck Active on all
+profiles to blank the site)**. `getProfiles()` feeds the switcher. **`Phone__c` is never queried — privacy by design on a public site.**
 `PortfolioAdminController` — internal admin reads (ALL records incl. inactive),
 object allowlist, never granted to the guest profile.
 
@@ -51,6 +57,9 @@ object allowlist, never granted to the guest profile.
 `portfolioSkills`, `portfolioCertifications`, `portfolioEducation`, `portfolioAwards`)
 each with loading/empty/error states and an `@api hideTitle`. Composition is a tabbed
 360 view: `portfolio360` holds the panels (hash deep links `#experience` etc.);
+`portfolioProfileSwitcher` — floating LEFT glass rail of circular avatar tabs, shown
+only when 2+ profiles are active; clicking broadcasts `portfolioprofilechange` window
+events and every profile-aware component (hero, nav chip, all sections) re-queries.
 `portfolioNav` — the floating liquid-glass bottom dock — is the single nav: dispatches
 `portfolio360navigate` window events, sliding active-pill indicator (FLIP transform),
 scroll-spy ("About" only when `scrollY < 140`), and a name chip that appears when the

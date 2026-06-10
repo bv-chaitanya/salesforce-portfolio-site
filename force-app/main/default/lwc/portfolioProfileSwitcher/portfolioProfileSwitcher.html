@@ -1,0 +1,18 @@
+<template>
+    <nav lwc:if={showRail} class="rail" aria-label="Profiles">
+        <template for:each={items} for:item="item">
+            <button
+                key={item.id}
+                class={item.cls}
+                type="button"
+                title={item.title}
+                aria-pressed={item.pressed}
+                data-id={item.id}
+                onclick={handleClick}
+            >
+                <img lwc:if={item.photoUrl} class="pimg" src={item.photoUrl} alt={item.fullName} loading="lazy" />
+                <span lwc:else class="pinitials">{item.initials}</span>
+            </button>
+        </template>
+    </nav>
+</template>

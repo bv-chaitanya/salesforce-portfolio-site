@@ -5,8 +5,21 @@ export default class PortfolioHero extends LightningElement {
     profile;
     state = 'loading';
     photoFailed = false;
+    profileId;
 
-    @wire(getProfile)
+    connectedCallback() {
+        this.boundProfileChange = (event) => {
+            this.profileId = event.detail.profileId;
+            this.photoFailed = false;
+        };
+        window.addEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
+    }
+
+    @wire(getProfile, { profileId: '$profileId' })
     wiredProfile({ data, error }) {
         if (error) {
             this.state = 'error';
