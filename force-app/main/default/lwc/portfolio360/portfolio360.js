@@ -3,13 +3,19 @@ import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
 
 // Fired by c-portfolio-nav (the floating dock) — the single navigation surface.
 const NAVIGATE_EVENT = 'portfolio360navigate';
-// Fired by this component as panels scroll into view; the dock highlights along.
+// Fired by this component whenever the visible page changes; the dock follows.
 const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const TABS = ['experience', 'skills', 'certifications', 'education', 'more'];
+const WHEEL_COOLDOWN_MS = 550;
+const WHEEL_MIN_DELTA = 30;
+const SWIPE_MIN_PX = 60;
 
 export default class Portfolio360 extends LightningElement {
-    spyStarted = false;
-    observer;
+    activeTab = TABS[0];
+    slideClass = '';
+    lastWheelAt = 0;
+    touchStartX = 0;
+    touchStartY = 0;
 
     profilesKnownEmpty = false;
 
@@ -25,6 +31,14 @@ export default class Portfolio360 extends LightningElement {
     }
 
     connectedCallback() {
+        try {
+            const hash = window.location.hash.replace('#', '').toLowerCase();
+            if (TABS.includes(hash)) {
+                this.activeTab = hash;
+            }
+        } catch {
+            // hash routing is a nice-to-have; never break rendering over it
+        }
         this.boundNavigate = (event) => this.handleNavigate(event);
         window.addEventListener(NAVIGATE_EVENT, this.boundNavigate);
     }
@@ -34,68 +48,75 @@ export default class Portfolio360 extends LightningElement {
             window.removeEventListener(NAVIGATE_EVENT, this.boundNavigate);
             this.boundNavigate = undefined;
         }
-        if (this.observer) {
-            this.observer.disconnect();
-            this.observer = undefined;
-        }
-    }
-
-    renderedCallback() {
-        if (this.spyStarted) {
-            return;
-        }
-        const panels = this.template.querySelectorAll('[data-tab]');
-        if (!panels.length) {
-            return;
-        }
-        this.spyStarted = true;
-        // Spy is progressive enhancement: panels scrolling through the middle
-        // band of the viewport broadcast their tab so the dock follows along.
-        try {
-            this.observer = new IntersectionObserver(
-                (entries) => {
-                    entries.forEach((entry) => {
-                        if (entry.isIntersecting) {
-                            const tabId = entry.target.dataset.tab;
-                            window.dispatchEvent(
-                                new CustomEvent(TAB_IN_VIEW_EVENT, { detail: { tabId } })
-                            );
-                            try {
-                                window.history.replaceState(null, '', `#${tabId}`);
-                            } catch {
-                                // hash sync is a nice-to-have
-                            }
-                        }
-                    });
-                },
-                { rootMargin: '-40% 0px -55% 0px' }
-            );
-            panels.forEach((panel) => this.observer.observe(panel));
-        } catch {
-            this.observer = undefined;
-        }
-        // deep link: land on the hashed tab
-        try {
-            const hash = window.location.hash.replace('#', '').toLowerCase();
-            if (TABS.includes(hash)) {
-                this.scrollToTab(hash, 'auto');
-            }
-        } catch {
-            // ignore
-        }
     }
 
     handleNavigate(event) {
         const tabId = event.detail && event.detail.tabId;
-        if (TABS.includes(tabId)) {
-            this.scrollToTab(tabId, this.preferredBehavior());
+        this.switchTo(tabId);
+    }
+
+    switchTo(tabId) {
+        if (!TABS.includes(tabId) || tabId === this.activeTab) {
+            return;
+        }
+        // entering page slides in from the direction of travel
+        this.slideClass = TABS.indexOf(tabId) > TABS.indexOf(this.activeTab)
+            ? 'slide-from-right'
+            : 'slide-from-left';
+        this.activeTab = tabId;
+        window.dispatchEvent(new CustomEvent(TAB_IN_VIEW_EVENT, { detail: { tabId } }));
+        try {
+            window.history.replaceState(null, '', `#${tabId}`);
+        } catch {
+            // ignore — see above
+        }
+        this.ensureTopVisible();
+    }
+
+    step(direction) {
+        const index = TABS.indexOf(this.activeTab) + direction;
+        if (index >= 0 && index < TABS.length) {
+            this.switchTo(TABS[index]);
         }
     }
 
-    scrollToTab(tabId, behavior) {
-        const panel = this.template.querySelector(`[data-tab="${tabId}"]`);
-        if (panel) {
-            panel.scrollIntoView({ behavior, block: 'start' });
+    // horizontal trackpad/mouse-tilt scrolling flips pages (vertical untouched)
+    handleWheel(event) {
+        const now = Date.now();
+        if (now - this.lastWheelAt < WHEEL_COOLDOWN_MS) {
+            return;
+        }
+        if (Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.5
+            && Math.abs(event.deltaX) > WHEEL_MIN_DELTA) {
+            this.lastWheelAt = now;
+            this.step(event.deltaX > 0 ? 1 : -1);
+        }
+    }
+
+    handleTouchStart(event) {
+        const touch = event.touches && event.touches[0];
+        if (touch) {
+            this.touchStartX = touch.clientX;
+            this.touchStartY = touch.clientY;
+        }
+    }
+
+    handleTouchEnd(event) {
+        const touch = event.changedTouches && event.changedTouches[0];
+        if (!touch) {
+            return;
+        }
+        const deltaX = touch.clientX - this.touchStartX;
+        const deltaY = touch.clientY - this.touchStartY;
+        if (Math.abs(deltaX) > SWIPE_MIN_PX && Math.abs(deltaX) > Math.abs(deltaY)) {
+            this.step(deltaX < 0 ? 1 : -1);
+        }
+    }
+
+    ensureTopVisible() {
+        const wrap = this.template.querySelector('.wrap');
+        if (wrap && wrap.getBoundingClientRect().top < 0) {
+            wrap.scrollIntoView({ behavior: this.preferredBehavior(), block: 'start' });
         }
     }
 
@@ -109,5 +130,29 @@ export default class Portfolio360 extends LightningElement {
             // fall through
         }
         return 'smooth';
+    }
+
+    panelCls(id) {
+        return id === this.activeTab ? `panel ${this.slideClass}`.trim() : 'panel hidden';
+    }
+
+    get experiencePanelClass() {
+        return this.panelCls('experience');
+    }
+
+    get skillsPanelClass() {
+        return this.panelCls('skills');
+    }
+
+    get certificationsPanelClass() {
+        return this.panelCls('certifications');
+    }
+
+    get educationPanelClass() {
+        return this.panelCls('education');
+    }
+
+    get morePanelClass() {
+        return this.panelCls('more');
     }
 }

@@ -11,17 +11,16 @@ jest.mock(
 );
 
 const NAVIGATE_EVENT = 'portfolio360navigate';
+const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+function visibleTabs(element) {
+    return Array.from(element.shadowRoot.querySelectorAll('[data-tab]'))
+        .filter((panel) => !panel.className.includes('hidden'))
+        .map((panel) => panel.dataset.tab);
+}
+
 describe('c-portfolio360', () => {
-    beforeAll(() => {
-        Element.prototype.scrollIntoView = jest.fn();
-    });
-
-    beforeEach(() => {
-        Element.prototype.scrollIntoView.mockClear();
-    });
-
     afterEach(() => {
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
@@ -35,42 +34,69 @@ describe('c-portfolio360', () => {
         return element;
     }
 
-    it('renders all five panels stacked in tab order', () => {
+    it('shows only the experience page by default', () => {
         const element = create();
 
-        const panels = element.shadowRoot.querySelectorAll('.panel');
-        expect(Array.from(panels).map((panel) => panel.dataset.tab)).toEqual([
-            'experience', 'skills', 'certifications', 'education', 'more'
-        ]);
+        expect(visibleTabs(element)).toEqual(['experience']);
     });
 
-    it('scrolls the matching panel when the dock dispatches navigate', async () => {
-        create();
+    it('lands on the deep-linked page from the URL hash', () => {
+        window.location.hash = '#certifications';
+
+        const element = create();
+
+        expect(visibleTabs(element)).toEqual(['certifications']);
+    });
+
+    it('switches pages with a horizontal slide and broadcasts the change', async () => {
+        const element = create();
+        const handler = jest.fn();
+        window.addEventListener(TAB_IN_VIEW_EVENT, handler);
 
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'skills' } }));
         await flush();
 
-        expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
+        expect(visibleTabs(element)).toEqual(['skills']);
+        const active = element.shadowRoot.querySelector('[data-tab="skills"]');
+        expect(active.className).toContain('slide-from-right');
+        expect(handler).toHaveBeenCalledTimes(1);
+        expect(handler.mock.calls[0][0].detail).toEqual({ tabId: 'skills' });
+        window.removeEventListener(TAB_IN_VIEW_EVENT, handler);
+    });
+
+    it('slides from the left when going backwards', async () => {
+        window.location.hash = '#education';
+        const element = create();
+
+        window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'skills' } }));
+        await flush();
+
+        expect(element.shadowRoot.querySelector('[data-tab="skills"]').className)
+            .toContain('slide-from-left');
     });
 
     it('ignores unknown tab ids', async () => {
-        create();
+        const element = create();
 
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'bogus' } }));
         await flush();
 
-        expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+        expect(visibleTabs(element)).toEqual(['experience']);
     });
 
-    it('lands on the deep-linked panel from the URL hash', async () => {
-        window.location.hash = '#certifications';
+    it('flips pages on a horizontal swipe', async () => {
+        const element = create();
+        const wrap = element.shadowRoot.querySelector('.wrap');
 
-        create();
+        wrap.dispatchEvent(new TouchEvent('touchstart', {
+            touches: [{ clientX: 300, clientY: 100 }]
+        }));
+        wrap.dispatchEvent(new TouchEvent('touchend', {
+            changedTouches: [{ clientX: 120, clientY: 110 }]
+        }));
         await flush();
 
-        expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(
-            expect.objectContaining({ behavior: 'auto' })
-        );
+        expect(visibleTabs(element)).toEqual(['skills']);
     });
 
     it('stops listening after disconnect', async () => {
@@ -80,6 +106,7 @@ describe('c-portfolio360', () => {
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'skills' } }));
         await flush();
 
-        expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+        document.body.appendChild(element);
+        expect(visibleTabs(element)).toEqual(['experience']);
     });
 });

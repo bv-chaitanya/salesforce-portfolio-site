@@ -59,11 +59,12 @@ object allowlist, never granted to the guest profile.
 
 **Public site LWCs**: section components (`portfolioHero`, `portfolioExperience`,
 `portfolioSkills`, `portfolioCertifications`, `portfolioEducation`, `portfolioAwards`,
-plus `portfolioItems` for the dynamic sections) each with loading/empty/error states. Composition is a **scroll-snap
-flow**: `portfolio360` stacks the panels in tab order (CSS `scroll-snap-type: y
-proximity` on html; each panel `scroll-snap-align: start`, ~viewport min-height) so
-scrolling settles tab by tab. It owns an IntersectionObserver that broadcasts
-`portfolio360tabinview` window events (+ hash sync) as panels cross the viewport band;
+plus `portfolioItems` for the dynamic sections) each with loading/empty/error states. Composition is a **horizontal
+pager**: `portfolio360` shows ONE page at a time (height = content, no reserved-viewport
+gaps) and switches with a horizontal slide (entering page slides from the direction of
+travel). Pages flip via dock clicks, horizontal trackpad scroll (dominant deltaX,
+cooldown-throttled), or touch swipe (`touch-action: pan-y` keeps vertical scroll
+native). It broadcasts `portfolio360tabinview` (+ hash sync) on every change;
 `portfolioProfileSwitcher` — floating LEFT glass rail of circular avatar tabs, shown
 only when 2+ profiles are active; clicking broadcasts `portfolioprofilechange` window
 events and every profile-aware component (hero, nav chip, all sections) re-queries.

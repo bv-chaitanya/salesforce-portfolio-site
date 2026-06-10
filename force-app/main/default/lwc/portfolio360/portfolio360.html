@@ -1,19 +1,25 @@
 <template>
-    <div lwc:if={siteHasProfiles} class="wrap">
-        <div class="panel" data-tab="experience" role="region" aria-label="Experience">
+    <div
+        lwc:if={siteHasProfiles}
+        class="wrap"
+        onwheel={handleWheel}
+        ontouchstart={handleTouchStart}
+        ontouchend={handleTouchEnd}
+    >
+        <div class={experiencePanelClass} data-tab="experience" role="region" aria-label="Experience">
             <c-portfolio-experience></c-portfolio-experience>
         </div>
-        <div class="panel" data-tab="skills" role="region" aria-label="Skills">
+        <div class={skillsPanelClass} data-tab="skills" role="region" aria-label="Skills">
             <c-portfolio-skills></c-portfolio-skills>
         </div>
-        <div class="panel" data-tab="certifications" role="region" aria-label="Certifications">
+        <div class={certificationsPanelClass} data-tab="certifications" role="region" aria-label="Certifications">
             <c-portfolio-certifications></c-portfolio-certifications>
         </div>
-        <div class="panel" data-tab="education" role="region" aria-label="Education and Awards">
+        <div class={educationPanelClass} data-tab="education" role="region" aria-label="Education and Awards">
             <c-portfolio-education></c-portfolio-education>
             <c-portfolio-awards></c-portfolio-awards>
         </div>
-        <div class="panel" data-tab="more" role="region" aria-label="More">
+        <div class={morePanelClass} data-tab="more" role="region" aria-label="More">
             <c-portfolio-items></c-portfolio-items>
         </div>
     </div>
