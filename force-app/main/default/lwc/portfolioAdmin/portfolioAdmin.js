@@ -14,7 +14,8 @@ const OBJECTS = [
     { api: 'Skill_Group__c', label: 'Skills' },
     { api: 'Certification__c', label: 'Certifications' },
     { api: 'Education__c', label: 'Education' },
-    { api: 'Award__c', label: 'Awards' }
+    { api: 'Award__c', label: 'Awards' },
+    { api: 'Portfolio_Item__c', label: 'More Items' }
 ];
 
 // always rendered last so ordering/visibility controls sit together

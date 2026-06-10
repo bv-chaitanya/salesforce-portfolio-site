@@ -1,5 +1,6 @@
 import { LightningElement, wire } from 'lwc';
 import getProfile from '@salesforce/apex/PortfolioController.getProfile';
+import getItemSections from '@salesforce/apex/PortfolioController.getItemSections';
 
 // Consumed by c-portfolio360, which swaps its panels in response.
 const NAVIGATE_EVENT = 'portfolio360navigate';
@@ -10,7 +11,8 @@ const ITEMS = [
     { id: 'certifications', label: 'Certifications' },
     { id: 'education', label: 'Education & Awards' }
 ];
-const TAB_IDS = new Set(['experience', 'skills', 'certifications', 'education']);
+const TAB_IDS = new Set(['experience', 'skills', 'certifications', 'education', 'more']);
+const MORE_ITEM = { id: 'more', label: 'More' };
 const HERO_SELECTOR = 'c-portfolio-hero';
 const PANEL_SELECTOR = 'c-portfolio360';
 // the big hero name sits ~240px into the hero — reveal the chip as it exits
@@ -26,6 +28,14 @@ export default class PortfolioNav extends LightningElement {
     scrollTicking = false;
 
     hasProfile = false;
+    hasMoreItems = false;
+
+    @wire(getItemSections, { profileId: '$profileId' })
+    wiredItemSections({ data }) {
+        if (data) {
+            this.hasMoreItems = data.length > 0;
+        }
+    }
 
     @wire(getProfile, { profileId: '$profileId' })
     wiredProfile({ data }) {
@@ -36,7 +46,8 @@ export default class PortfolioNav extends LightningElement {
     }
 
     get items() {
-        return ITEMS.map((item) => ({
+        const list = this.hasMoreItems ? [...ITEMS, MORE_ITEM] : ITEMS;
+        return list.map((item) => ({
             ...item,
             cls: item.id === this.activeId ? 'nav-btn active' : 'nav-btn'
         }));

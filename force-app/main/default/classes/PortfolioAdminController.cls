@@ -9,7 +9,7 @@ public with sharing class PortfolioAdminController {
     @TestVisible
     private static final Set<String> ALLOWED_OBJECTS = new Set<String>{
         'Portfolio_Profile__c', 'Experience__c', 'Project__c', 'Skill_Group__c',
-        'Certification__c', 'Education__c', 'Award__c'
+        'Certification__c', 'Education__c', 'Award__c', 'Portfolio_Item__c'
     };
 
     @AuraEnabled(cacheable=true)

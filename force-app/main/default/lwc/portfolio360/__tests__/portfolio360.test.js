@@ -39,7 +39,7 @@ describe('c-portfolio360', () => {
 
         const classes = panelClasses(element);
         expect(classes[0]).toBe('panel');
-        expect(classes.slice(1)).toEqual(['panel hidden', 'panel hidden', 'panel hidden']);
+        expect(classes.slice(1)).toEqual(['panel hidden', 'panel hidden', 'panel hidden', 'panel hidden']);
     });
 
     it('opens the tab from the URL hash deep link', () => {

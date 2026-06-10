@@ -3,7 +3,7 @@ import getProfiles from '@salesforce/apex/PortfolioController.getProfiles';
 
 // Fired by c-portfolio-nav (the floating dock) — the single navigation surface.
 const NAVIGATE_EVENT = 'portfolio360navigate';
-const TABS = ['experience', 'skills', 'certifications', 'education'];
+const TABS = ['experience', 'skills', 'certifications', 'education', 'more'];
 
 export default class Portfolio360 extends LightningElement {
     activeTab = TABS[0];
@@ -78,5 +78,9 @@ export default class Portfolio360 extends LightningElement {
 
     get educationPanelClass() {
         return this.panelClass('education');
+    }
+
+    get morePanelClass() {
+        return this.panelClass('more');
     }
 }

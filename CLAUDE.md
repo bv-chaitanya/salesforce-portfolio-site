@@ -96,7 +96,14 @@ Unchecking `Is_Active__c` hides a record from the site instantly.
 - **New FIELD**: create field + Portfolio_Admin permset FLS. Admin form picks it up with
   zero code. If shown publicly: guest profile FLS + PortfolioController query/DTO + the
   section LWC markup.
-- **New SECTION (object)**: object w/ the two convention fields + guest sharing rule +
+- **New SIMPLE section — ZERO code**: add `Portfolio_Item__c` records in the admin
+  page ("More Items" tab) with a `Section__c` name ("Publications", "Speaking"…).
+  Same Section name groups into one site section under the "More" dock tab (which
+  appears/disappears automatically with items). `Section_Order__c` orders sections;
+  `Display_Order__c` orders items; fields: Subtitle, rich-text Description, Date Label,
+  Link URL/Label, Tags (semicolon → chips). Only build a dedicated object when the
+  content needs a bespoke layout (like the Experience timeline):
+- **New DEDICATED section (object)**: object w/ the two convention fields + guest sharing rule +
   permset entries + DTO/controller method + section LWC + panel in `portfolio360` +
   dock item in `portfolioNav` + admin: tab entry in `portfolioAdmin` OBJECTS + entry in
   `PortfolioAdminController.ALLOWED_OBJECTS`.

@@ -1,0 +1,37 @@
+<template>
+    <template lwc:if={siteHasProfiles}>
+        <template lwc:if={isReady}>
+            <template for:each={sections} for:item="sec">
+                <section key={sec.key} class="section">
+                    <h2 class="section-title">{sec.title}</h2>
+                    <div class="grid">
+                        <template for:each={sec.items} for:item="item">
+                            <article key={item.key} class="card">
+                                <h3 class="item-title">
+                                    {item.title}
+                                    <span lwc:if={item.dateLabel} class="date-pill">{item.dateLabel}</span>
+                                </h3>
+                                <p lwc:if={item.subtitle} class="subtitle">{item.subtitle}</p>
+                                <div lwc:if={item.description} class="description">
+                                    <lightning-formatted-rich-text value={item.description}></lightning-formatted-rich-text>
+                                </div>
+                                <div lwc:if={item.tags.length} class="tags">
+                                    <template for:each={item.tags} for:item="tag">
+                                        <span key={tag.key} class="chip">{tag.label}</span>
+                                    </template>
+                                </div>
+                                <a
+                                    lwc:if={item.linkUrl}
+                                    class="item-link"
+                                    href={item.linkUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >{item.linkLabel} →</a>
+                            </article>
+                        </template>
+                    </div>
+                </section>
+            </template>
+        </template>
+    </template>
+</template>

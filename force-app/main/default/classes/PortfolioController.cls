@@ -174,6 +174,44 @@ public with sharing class PortfolioController {
         return result;
     }
 
+    @AuraEnabled(cacheable=true)
+    public static List<ItemSectionDTO> getItemSections(Id profileId) {
+        List<ItemSectionDTO> result = new List<ItemSectionDTO>();
+        Id resolved = resolveProfileId(profileId);
+        if (resolved == null) {
+            return result;
+        }
+        Map<String, ItemSectionDTO> bySection = new Map<String, ItemSectionDTO>();
+        for (Portfolio_Item__c item : [
+            SELECT Name, Section__c, Subtitle__c, Description__c, Date_Label__c,
+                Link_URL__c, Link_Label__c, Tags__c
+            FROM Portfolio_Item__c
+            WHERE Is_Active__c = true AND Profile__c = :resolved
+            ORDER BY Section_Order__c ASC NULLS LAST, Section__c ASC,
+                Display_Order__c ASC NULLS LAST, Name ASC
+        ]) {
+            String key = String.isBlank(item.Section__c) ? 'More' : item.Section__c.trim();
+            ItemSectionDTO section = bySection.get(key);
+            if (section == null) {
+                section = new ItemSectionDTO();
+                section.section = key;
+                section.items = new List<ItemDTO>();
+                bySection.put(key, section);
+                result.add(section); // SOQL pre-sorted: first occurrence fixes section order
+            }
+            ItemDTO dto = new ItemDTO();
+            dto.title = item.Name;
+            dto.subtitle = item.Subtitle__c;
+            dto.description = item.Description__c;
+            dto.dateLabel = item.Date_Label__c;
+            dto.linkUrl = item.Link_URL__c;
+            dto.linkLabel = String.isBlank(item.Link_Label__c) ? 'View' : item.Link_Label__c;
+            dto.tags = splitSkills(item.Tags__c);
+            section.items.add(dto);
+        }
+        return result;
+    }
+
     // Null = first active profile. An explicit id is honored only when that
     // profile is active, so inactive profiles are unreachable even by id.
     private static Id resolveProfileId(Id profileId) {
@@ -218,6 +256,21 @@ public with sharing class PortfolioController {
             }
         }
         return skills;
+    }
+
+    public class ItemSectionDTO {
+        @AuraEnabled public String section { get; set; }
+        @AuraEnabled public List<ItemDTO> items { get; set; }
+    }
+
+    public class ItemDTO {
+        @AuraEnabled public String title { get; set; }
+        @AuraEnabled public String subtitle { get; set; }
+        @AuraEnabled public String description { get; set; }
+        @AuraEnabled public String dateLabel { get; set; }
+        @AuraEnabled public String linkUrl { get; set; }
+        @AuraEnabled public String linkLabel { get; set; }
+        @AuraEnabled public List<String> tags { get; set; }
     }
 
     public class ProfileSummaryDTO {

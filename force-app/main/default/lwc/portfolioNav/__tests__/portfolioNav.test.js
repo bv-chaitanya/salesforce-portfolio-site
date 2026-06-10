@@ -1,6 +1,16 @@
 import { createElement } from 'lwc';
 import PortfolioNav from 'c/portfolioNav';
 import getProfile from '@salesforce/apex/PortfolioController.getProfile';
+import getItemSections from '@salesforce/apex/PortfolioController.getItemSections';
+
+jest.mock(
+    '@salesforce/apex/PortfolioController.getItemSections',
+    () => {
+        const { createApexTestWireAdapter } = require('@salesforce/sfdx-lwc-jest');
+        return { default: createApexTestWireAdapter(jest.fn()) };
+    },
+    { virtual: true }
+);
 
 jest.mock(
     '@salesforce/apex/PortfolioController.getProfile',
@@ -108,6 +118,19 @@ describe('c-portfolio-nav', () => {
 
         expect(element.shadowRoot.querySelector('.name-chip').className).toContain('show');
         expect(activeLabel(element)).toBe('Experience');
+    });
+
+    it('adds a More item only when dynamic sections exist', async () => {
+        const element = await create();
+        expect(element.shadowRoot.querySelectorAll('.nav-btn')).toHaveLength(5);
+
+        getItemSections.emit([{ section: 'Publications', items: [] }]);
+        await flush();
+
+        const labels = Array.from(element.shadowRoot.querySelectorAll('.nav-btn'))
+            .map((button) => button.textContent);
+        expect(labels).toHaveLength(6);
+        expect(labels[5]).toBe('More');
     });
 
     it('returns to About at the top of the page and hides the chip', async () => {

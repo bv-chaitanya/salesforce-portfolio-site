@@ -88,6 +88,20 @@ private class PortfolioControllerTest {
             new Education__c(Name = 'Hidden Degree', Profile__c = mainId, Is_Active__c = false, Display_Order__c = 0)
         };
 
+        insert new List<Portfolio_Item__c>{
+            new Portfolio_Item__c(Name = 'Talk B', Section__c = 'Speaking', Section_Order__c = 2,
+                Profile__c = mainId, Display_Order__c = 2, Is_Active__c = true,
+                Tags__c = 'LWC; Apex', Link_URL__c = 'https://example.com/talk'),
+            new Portfolio_Item__c(Name = 'Talk A', Section__c = 'Speaking', Section_Order__c = 2,
+                Profile__c = mainId, Display_Order__c = 1, Is_Active__c = true, Link_Label__c = 'Watch'),
+            new Portfolio_Item__c(Name = 'Paper', Section__c = 'Publications', Section_Order__c = 1,
+                Profile__c = mainId, Display_Order__c = 1, Is_Active__c = true),
+            new Portfolio_Item__c(Name = 'Alt Item', Section__c = 'Publications', Section_Order__c = 1,
+                Profile__c = altId, Display_Order__c = 1, Is_Active__c = true),
+            new Portfolio_Item__c(Name = 'Hidden Item', Section__c = 'Speaking', Profile__c = mainId,
+                Is_Active__c = false, Display_Order__c = 0)
+        };
+
         insert new List<Award__c>{
             new Award__c(Name = 'Impact Award', Year__c = '2023', Description__c = 'Nominated',
                 Profile__c = mainId, Display_Order__c = 1, Is_Active__c = true),
@@ -143,6 +157,7 @@ private class PortfolioControllerTest {
         Assert.areEqual(0, PortfolioController.getCertifications(null).size(), 'Sections gated by profile');
         Assert.areEqual(0, PortfolioController.getEducation(null).size(), 'Sections gated by profile');
         Assert.areEqual(0, PortfolioController.getAwards(null).size(), 'Sections gated by profile');
+        Assert.areEqual(0, PortfolioController.getItemSections(null).size(), 'Dynamic sections gated too');
     }
 
     @IsTest
@@ -196,6 +211,25 @@ private class PortfolioControllerTest {
             PortfolioController.getCertifications(idOf('Second Persona'));
         Assert.areEqual(1, altCerts.size(), 'Alt profile sees only its cert');
         Assert.areEqual('Alt Cert', altCerts[0].name, 'Profile scoping works');
+    }
+
+    @IsTest
+    static void getItemSectionsGroupsOrdersAndScopes() {
+        List<PortfolioController.ItemSectionDTO> sections = PortfolioController.getItemSections(null);
+
+        Assert.areEqual(2, sections.size(), 'Two dynamic sections for the default profile');
+        Assert.areEqual('Publications', sections[0].section, 'Sections ordered by Section_Order__c');
+        Assert.areEqual('Speaking', sections[1].section, 'Second section by order');
+        Assert.areEqual(2, sections[1].items.size(), 'Inactive item excluded');
+        Assert.areEqual('Talk A', sections[1].items[0].title, 'Items ordered by Display_Order__c');
+        Assert.areEqual('Watch', sections[1].items[0].linkLabel, 'Custom link label kept');
+        Assert.areEqual('View', sections[1].items[1].linkLabel, 'Link label defaults to View');
+        Assert.areEqual(new List<String>{ 'LWC', 'Apex' }, sections[1].items[1].tags, 'Tags split');
+
+        List<PortfolioController.ItemSectionDTO> alt =
+            PortfolioController.getItemSections(idOf('Second Persona'));
+        Assert.areEqual(1, alt.size(), 'Alt profile sees only its sections');
+        Assert.areEqual('Alt Item', alt[0].items[0].title, 'Profile scoping works');
     }
 
     @IsTest
