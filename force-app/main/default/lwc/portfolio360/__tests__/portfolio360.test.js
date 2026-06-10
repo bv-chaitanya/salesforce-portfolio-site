@@ -112,6 +112,23 @@ describe('c-portfolio360', () => {
         expect(visibleTabs(element)).toEqual(['skills']);
     });
 
+    it('ignores momentum events — one gesture flips one page', async () => {
+        const element = create();
+        const wrap = element.shadowRoot.querySelector('.wrap');
+        Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
+
+        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
+        await flush();
+        // inertial tail: rapid follow-up events from the same gesture
+        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, deltaX: 0 }));
+        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, deltaX: 0 }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['skills']);
+    });
+
     it('does not advance on vertical scroll mid-page', async () => {
         const element = create();
         const wrap = element.shadowRoot.querySelector('.wrap');

@@ -7,13 +7,17 @@ const NAVIGATE_EVENT = 'portfolio360navigate';
 const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const TABS = ['experience', 'skills', 'certifications', 'education', 'more'];
 const WHEEL_COOLDOWN_MS = 550;
+// a wheel event after this much silence is a NEW gesture; anything sooner is
+// momentum/inertia continuation and must never flip a page
+const GESTURE_GAP_MS = 250;
 const WHEEL_MIN_DELTA = 30;
 const SWIPE_MIN_PX = 60;
 
 export default class Portfolio360 extends LightningElement {
     activeTab = TABS[0];
     slideClass = '';
-    lastWheelAt = 0;
+    lastFlipAt = 0;
+    lastWheelEventAt = 0;
     touchStartX = 0;
     touchStartY = 0;
 
@@ -81,23 +85,27 @@ export default class Portfolio360 extends LightningElement {
     }
 
     // horizontal trackpad/mouse-tilt scrolling flips pages; vertical scrolling
-    // past the END of a page advances to the next tab in order
+    // past the END of a page advances to the next tab in order. Only a FRESH
+    // gesture flips — momentum events chain otherwise and skip through pages.
     handleWheel(event) {
         const now = Date.now();
-        if (now - this.lastWheelAt < WHEEL_COOLDOWN_MS) {
+        const freshGesture = now - this.lastWheelEventAt > GESTURE_GAP_MS;
+        this.lastWheelEventAt = now;
+        if (!freshGesture || now - this.lastFlipAt < WHEEL_COOLDOWN_MS) {
             return;
         }
-        const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.5
-            && Math.abs(event.deltaX) > WHEEL_MIN_DELTA;
-        if (horizontal) {
-            this.lastWheelAt = now;
-            this.step(event.deltaX > 0 ? 1 : -1);
+        // Firefox reports lines, not pixels
+        const unit = event.deltaMode === 1 ? 16 : 1;
+        const deltaX = event.deltaX * unit;
+        const deltaY = event.deltaY * unit;
+        if (Math.abs(deltaX) > Math.abs(deltaY) * 1.5 && Math.abs(deltaX) > WHEEL_MIN_DELTA) {
+            this.lastFlipAt = now;
+            this.step(deltaX > 0 ? 1 : -1);
             return;
         }
-        const downward = Math.abs(event.deltaY) > Math.abs(event.deltaX)
-            && event.deltaY > WHEEL_MIN_DELTA;
-        if (downward && this.isAtPageBottom()) {
-            this.lastWheelAt = now;
+        if (Math.abs(deltaY) > Math.abs(deltaX) && deltaY > WHEEL_MIN_DELTA
+            && this.isAtPageBottom()) {
+            this.lastFlipAt = now;
             this.step(1);
         }
     }
