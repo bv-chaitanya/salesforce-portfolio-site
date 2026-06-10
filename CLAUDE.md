@@ -1,79 +1,122 @@
 # CLAUDE.md — Salesforce Portfolio Site
 
-Public portfolio/resume website hosted on a personal Salesforce Developer Edition org.
-Everything renders from records — content updates happen by editing records, never code.
+Public portfolio/resume website on a personal Salesforce Developer Edition org.
+Everything renders from records — content updates happen by editing records (via the
+Portfolio Admin page), never code. Live: https://chap-dev-ed.my.site.com/
 
-## Org & repo
+## Org, repo, auth
 
-- **Alias**: `portfolio` | **Org**: `chap-dev-ed.my.salesforce.com` (Developer Edition, API 66.0)
-- **GitHub**: https://github.com/bv-chaitanya/salesforce-portfolio-site (public, personal account).
-  This machine's active `gh` account is the work one (`rax-chaitu`), so this repo has a
+- **Org alias**: `portfolio` → `chap-dev-ed.my.salesforce.com` (Developer Edition, API 66.0).
+  Deploy directly — no scratch orgs, no sandboxes. Log into the org at least monthly or
+  Salesforce deactivates inactive Dev Editions (site dies with it).
+- **GitHub**: https://github.com/bv-chaitanya/salesforce-portfolio-site (public, personal).
+  This machine's active `gh` account is the work one (`rax-chaitu`); this repo has a
   **repo-local** `credential.helper` that pulls the personal token via
   `gh auth token -u bv-chaitanya` (see `.git/config`). Don't "fix" the remote URL or the
-  helper, and don't `gh auth logout bv-chaitanya` — pushes here depend on it.
-- Deploy directly (no scratch orgs): `sf project deploy start -o portfolio`
-- Run tests: `sf apex run test -o portfolio -l RunLocalTests -w 10 -r human -c`
-- LWC unit tests: `npm run test:unit` (sfdx-lwc-jest; suites for nav, 360, hero, experience, skills)
-- Lint LWC (official Salesforce config): `npm run lint` — keep at 0 problems; the only
-  suppressions allowed are the documented `no-document-query`/`no-async-operation` ones
-  in `portfolioNav` (cross-component page coordination).
-- Target site: Experience Cloud **LWR** ("Build Your Own (LWR)" template), public guest access
+  helper, don't `gh auth logout bv-chaitanya`, don't `gh auth switch` globally.
+- `resumes/` is gitignored (real contact details). The seed script was never committed
+  for the same reason — content now lives in org records only.
 
-## Architecture decisions
+## Commands
 
-1. **Schema derived from resume analysis** (3 versions in `resumes/`, gitignored — they
-   contain personal contact details). 7 objects, all with `Display_Order__c` (Number) and
-   `Is_Active__c` (Checkbox, default TRUE) driving ordering + guest sharing rule criteria:
-   - `Portfolio_Profile__c` — hero/identity (singleton). `Photo_URL__c` renders via plain
-     `<img>` with initials fallback on empty/broken URL.
-   - `Experience__c` — jobs. Blank `End_Date__c` or `Is_Current__c` renders "Present".
-   - `Project__c` — child of Experience via `Job__c` lookup (rel name `Projects`).
-   - `Skill_Group__c` — one record per category; `Skills__c` is a **semicolon-delimited**
-     list rendered as chips (same delimiter convention for `Project__c.Tech_Stack__c`).
-   - `Certification__c`, `Education__c`, `Award__c` — simple lists.
-2. **Privacy**: `Phone__c` exists on the profile object but is *never queried or exposed*
-   by `PortfolioController` — the site is public. Email + LinkedIn are rendered.
-3. **Apex**: single `PortfolioController` (`with sharing`, cacheable methods, typed inner
-   DTOs). Record visibility for guests comes from criteria-based guest sharing rules;
-   FLS comes from the guest profile. Skill splitting happens in Apex, not JS.
-4. **LWC**: one component per section (hero, experience timeline w/ nested projects,
-   skills, certifications, education, awards), composed as a tabbed 360 view:
-   `portfolio360` renders the sections as panels (hash deep links #experience etc.,
-   passes `hide-title` to children), and `portfolioNav` — the floating liquid-glass
-   bottom dock — is the single nav: it dispatches `portfolio360navigate` window events
-   to switch tabs, scrolls to hero for About, and shows a name chip once the hero name
-   scrolls away. `portfolioAdmin` (+ `PortfolioAdminController`, FlexiPage
-   `Portfolio_Admin`, tab "Portfolio Admin") is the internal content manager: per-object
-   datatables, inline edit incl. Is_Active toggle, delete, create. Never grant
-   PortfolioAdminController to the guest profile. Liquid-glass design system: gradient mesh page background (site styles.css),
-   translucent cards (rgba white + inset highlight — backdrop-filter only on the dock and
-   hero summary for performance), custom mobile-first CSS, no SLDS utilities, no external JS. Rich text renders via
-   `lightning-formatted-rich-text` (LWR-supported base component). Every component has
-   loading/empty/error states.
-5. **Guest access** (Phase 4): the site guest user profile + guest sharing rules can only
-   be deployed **after** the Experience site exists (the guest user is created with the
-   site). Order: deploy code → create site manually → deploy guest profile + sharing
-   rules (`Is_Active__c = TRUE → Read` per object).
-6. `Portfolio_Admin` permission set grants the admin user object/field access + tabs for
-   record editing in the org UI. Assign once:
-   `sf org assign permset -n Portfolio_Admin -o portfolio`
+```bash
+sf project deploy start -o portfolio                  # deploy (whole project is safe)
+sf apex run test -o portfolio -l RunLocalTests -w 10 -r human -c
+npm run test:unit                                     # LWC Jest (24 tests: nav/360/hero/experience/skills)
+npm run lint                                          # official @salesforce/eslint-config-lwc — keep at 0
+sf community publish --name Portfolio -o portfolio    # REQUIRED after any digitalExperiences change
+```
 
-## Phase status
+Quality gates before pushing: lint 0 problems · Jest green · Apex tests green (both
+controllers at 100% coverage). Only allowed lint suppressions: the documented
+`no-document-query`/`no-async-operation` ones in `portfolioNav` (page-level coordination).
 
-- [x] Phase 1 — resume analysis + schema approved
-- [x] Phase 2 — objects, Apex, tests (deployed 2026-06-10; 16/16 pass, controller 100% coverage)
-- [x] Phase 3 — LWCs (deployed)
-- [x] Phase 4 — guest access config (deployed 2026-06-10: guest profile read-only perms, no Phone FLS, 7 guest sharing rules `Is_Active__c=TRUE → Read`, site name `Portfolio`)
-- [x] Phase 5 — data loaded 2026-06-10 via anonymous Apex (script kept out of repo — real contact data). Content edits now happen via object tabs in the org.
-- [x] Phase 6 — site `Portfolio` created manually; page composition done AS CODE via DigitalExperienceBundle (home view JSON = 6 stacked components), Home route `pageAccess: Public`, theme header region emptied + footer hidden (kills default grey strip), branding `BackgroundColor #f6f8fb`, `<title>` set in mainAppPage. Publish with: `sf community publish --name Portfolio -o portfolio`. Live: https://chap-dev-ed.my.site.com/  — pending: Photo_URL__c on the profile record.
+## Architecture
 
-## Conventions
+**Data (7 custom objects)** — all have `Display_Order__c` (Number) + `Is_Active__c`
+(Checkbox, default TRUE; drives ordering and guest sharing rules):
+`Portfolio_Profile__c` (hero/identity singleton; `Photo_URL__c` → plain `<img>` with
+initials fallback), `Experience__c` (jobs; blank end date or `Is_Current__c` renders
+"Present"), `Project__c` (child of Experience via `Job__c`, rel name `Projects`),
+`Skill_Group__c` (one per category; `Skills__c` is **semicolon-delimited** → chips, same
+convention as `Project__c.Tech_Stack__c`), `Certification__c`, `Education__c`, `Award__c`.
 
-- Placeholders only in code/tests — no real personal data, org IDs, or credentials.
-- New FIELD on an existing object: create field + Portfolio_Admin permset FLS; if shown
-  publicly, also guest profile FLS + PortfolioController query/DTO + LWC markup. The
-  admin page needs NO change — its form is describe-driven (every editable custom field
-  renders automatically, Display_Order/Is_Active pinned last).
-- New content section = new object (follow the conventions above) + DTO + controller
-  method + LWC + guest sharing rule + permset entries + admin: one tab entry in
-  portfolioAdmin OBJECTS + one entry in PortfolioAdminController.ALLOWED_OBJECTS.
+**Apex**: `PortfolioController` — public site reads. `with sharing`, cacheable methods,
+typed inner DTOs, active-only + Display_Order ordering, parent-child subquery for
+projects. **`Phone__c` is never queried — privacy by design on a public site.**
+`PortfolioAdminController` — internal admin reads (ALL records incl. inactive),
+object allowlist, never granted to the guest profile.
+
+**Public site LWCs**: section components (`portfolioHero`, `portfolioExperience`,
+`portfolioSkills`, `portfolioCertifications`, `portfolioEducation`, `portfolioAwards`)
+each with loading/empty/error states and an `@api hideTitle`. Composition is a tabbed
+360 view: `portfolio360` holds the panels (hash deep links `#experience` etc.);
+`portfolioNav` — the floating liquid-glass bottom dock — is the single nav: dispatches
+`portfolio360navigate` window events, sliding active-pill indicator (FLIP transform),
+scroll-spy ("About" only when `scrollY < 140`), and a name chip that appears when the
+hero name scrolls out. Rich text renders via `lightning-formatted-rich-text`.
+
+**Design system (liquid glass)**: vivid pastel mesh + hard-edged discs live in the
+**mainAppPage `headMarkup` inline `<style>`** — glass needs color/edges behind it or
+blur is invisible. White-frost surfaces (`backdrop-filter` blur 8–20px, reduced on
+mobile), ink `#1d1d1f` monochrome accents, glass pill language shared by dock, name
+chip, buttons, and section headers. Never animate `backdrop-filter`; hover shadows fade
+a pre-rendered `::after` (opacity only). `prefers-reduced-motion` honored everywhere.
+
+**Admin (internal only)**: App Launcher → "Portfolio Admin" (FlexiPage + tab).
+`portfolioAdmin` LWC: left record picker (Inactive badges), right
+`lightning-record-edit-form` — **describe-driven**: every editable custom field renders
+automatically (Name first, Display_Order/Is_Active pinned last). In-place New, Delete
+with confirm. Targets `lightning__AppPage`/`HomePage` only — it cannot be placed on the
+Experience site, and the guest profile has no access to its controller.
+
+**Guest security model**: guest profile = object Read ×7 + FLS on rendered fields only
+(no Phone) + access to `PortfolioController` only. Criteria-based **guest sharing
+rules** (`Is_Active__c = TRUE → Read`) are the only door through Private external OWD.
+Unchecking `Is_Active__c` hides a record from the site instantly.
+
+## Workflows
+
+- **Edit content**: Portfolio Admin page → pick record → edit → Save. No deploys.
+- **New FIELD**: create field + Portfolio_Admin permset FLS. Admin form picks it up with
+  zero code. If shown publicly: guest profile FLS + PortfolioController query/DTO + the
+  section LWC markup.
+- **New SECTION (object)**: object w/ the two convention fields + guest sharing rule +
+  permset entries + DTO/controller method + section LWC + panel in `portfolio360` +
+  dock item in `portfolioNav` + admin: tab entry in `portfolioAdmin` OBJECTS + entry in
+  `PortfolioAdminController.ALLOWED_OBJECTS`.
+- **Anything under `digitalExperiences/`** (head markup, branding, home view JSON, theme):
+  deploy, then **publish** (`sf community publish`), then hard-refresh (guest CDN cache).
+
+## Hard-won gotchas (do not relearn these)
+
+1. `{ styles/styles.css }` in headMarkup **never resolves** on the published site — the
+   file deploys but is not served. Global canvas CSS lives INLINE in mainAppPage
+   `headMarkup` (with `!important`). `sfdc_cms__styles/styles_css` is effectively dead.
+2. `html, body { height: 100% }` caps the body's background paint box at one viewport —
+   full-width color seam exactly one screen down. Use `min-height`.
+3. Blur over a flat background is invisible — keep color/edges behind glass surfaces.
+4. LWR injects base link styles into shadow roots; `a:hover` (0-1-1) beats a lone class
+   (0-1-0). Every anchor must pin color/text-decoration on
+   hover/focus/active/visited (all four anchors in the site do).
+5. `onactive` fires on `lightning-tab`, NOT on `lightning-tabset`.
+6. `document.startViewTransition` + waiting on rAF inside the update callback =
+   deadlock (rendering is paused, rAF never fires; page freezes ~4s per click).
+7. `sharingGuestRules` metadata rejects `includeRecordsOwnedByAll`.
+8. Guest profile + guest sharing rules can only deploy AFTER the site exists
+   (site creation spawns the guest user). Site name for `<guestUser>` is `Portfolio`.
+9. App-page FlexiPage template is `flexipage:defaultAppHomeTemplate`; FlexiPage custom
+   tabs require `<label>`.
+10. `lightning-tab` content swaps need the spy to be scroll-position based — short
+    panels can't push the hero fully out, so hero-visibility checks steal active state.
+11. Buttons don't inherit `font-family`; set it explicitly (dock/chip do).
+12. Photo is an org `StaticResource` (`profilePhoto`, 512px JPEG) served at
+    `https://chap-dev-ed.my.site.com/sfsites/c/resource/profilePhoto` — same origin, no
+    CSP concerns. OG link-preview meta tags live in headMarkup.
+
+## Status
+
+All phases complete (2026-06-10): schema, Apex (46/46 tests, 100% coverage both
+controllers), LWCs (+ Jest 24/24, lint 0), guest access verified by SOQL, data loaded,
+site live with liquid-glass tabbed UI, admin page, photo, OG tags. No open items beyond
+monthly org login.

@@ -45,7 +45,12 @@ controller can't leak it by design.
 
 Tests: [`PortfolioControllerTest`](force-app/main/default/classes/PortfolioControllerTest.cls) —
 filtering, ordering, nesting, delimiter parsing, and empty-data paths. 100% coverage
-on the controller.
+on both controllers, 24 LWC Jest tests, and zero ESLint problems under the official
+`@salesforce/eslint-config-lwc` ruleset.
+
+Content is managed through an internal **Portfolio Content Manager** app page
+(record picker + describe-driven edit form), so updating the portfolio never
+touches code.
 
 ### LWC
 
