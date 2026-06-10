@@ -125,6 +125,24 @@ describe('c-portfolio360', () => {
         expect(visibleTabs(element)).toEqual(['skills']);
     });
 
+    it('post-flip inertia tail never chains a second flip (even equal-delta plateaus)', async () => {
+        const element = create();
+        Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
+
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 200, deltaX: 0 }));
+        await flush();
+        expect(visibleTabs(element)).toEqual(['skills']);
+        // kinetic tail with plateaued equal deltas (the old notch-rule leak)
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 43, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 43, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 170, deltaX: 0 }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['skills']);
+    });
+
     it('ignores momentum events — one gesture flips one page', async () => {
         const element = create();
         Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });

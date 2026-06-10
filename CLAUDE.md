@@ -66,7 +66,9 @@ travel). Pages flip via dock clicks, horizontal trackpad scroll (dominant deltaX
 cooldown-throttled), touch swipe (`touch-action: pan-y` keeps vertical scroll native),
 or **vertical scroll past the page bottom** (wheel or upward swipe at the end advances
 to the next tab in order — going back is horizontal/dock only). Wheel paging is
-gesture-gated (momentum/inertia events never flip). **Returning to the true top (scrollY < 48)
+impulse-gated AND post-flip LATCHED (fullPage.js-style): after any flip, wheel input
+is swallowed until the kinetic stream goes silent (~250ms gap; 1.1s hard cap), so
+leftover trackpad inertia can never chain a second flip. **Returning to the true top (scrollY < 48)
 resets the pager to the first tab** so scrolling down restarts the sequence — the zone
 is small on purpose: short pages live at low scrollY and a generous zone hijacks their
 up-scrolls. Wheel/touch paging listens at WINDOW level — flips must never depend on

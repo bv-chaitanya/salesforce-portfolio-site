@@ -9,6 +9,12 @@ const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const TABS = ['experience', 'skills', 'certifications', 'education', 'more'];
 
 const WHEEL_COOLDOWN_MS = 450;
+// after a flip, wheel input is LATCHED until the gesture's event stream goes
+// silent (fullPage.js-style kinetic-scroll fix) — with a hard cap so a
+// continuous stream can still page once per interval
+const LATCH_HARD_CAP_MS = 1100;
+// real mouse notches are spaced; momentum plateaus repeat every ~8-16ms
+const NOTCH_MIN_GAP_MS = 40;
 // silence longer than this marks a brand-new gesture
 const GESTURE_GAP_MS = 250;
 const WHEEL_MIN_DELTA = 30;
@@ -35,6 +41,7 @@ export default class Portfolio360 extends LightningElement {
     lastAbsDelta = 0;
     bottomAccum = 0;
     topAccum = 0;
+    requireNewGesture = false;
     prevScrollY = 0;
     scrollTicking = false;
     touchStartX = 0;
@@ -144,6 +151,11 @@ export default class Portfolio360 extends LightningElement {
         if (!this.availableTabs.includes(tabId) || tabId === this.activeTab) {
             return;
         }
+        // any flip (wheel, touch, dock) latches wheel paging until the current
+        // kinetic stream ends — leftover inertia must never chain another flip
+        this.requireNewGesture = true;
+        this.bottomAccum = 0;
+        this.topAccum = 0;
         // entering page slides in from the direction of travel
         this.slideClass = !animate ? ''
             : TABS.indexOf(tabId) > TABS.indexOf(this.activeTab)
@@ -177,6 +189,14 @@ export default class Portfolio360 extends LightningElement {
         const now = Date.now();
         const sinceLast = now - this.lastWheelEventAt;
         this.lastWheelEventAt = now;
+        if (this.requireNewGesture) {
+            if (sinceLast <= GESTURE_GAP_MS && now - this.lastFlipAt < LATCH_HARD_CAP_MS) {
+                // same kinetic stream — swallow it
+                this.lastAbsDelta = Math.abs(event.deltaY) || Math.abs(event.deltaX);
+                return;
+            }
+            this.requireNewGesture = false;
+        }
         // Firefox reports lines, not pixels
         const unit = event.deltaMode === 1 ? 16 : 1;
         const deltaX = event.deltaX * unit;
@@ -188,7 +208,8 @@ export default class Portfolio360 extends LightningElement {
         const coolingDown = now - this.lastFlipAt < WHEEL_COOLDOWN_MS;
         const impulse = abs >= WHEEL_MIN_DELTA && (prevAbs === 0
             || abs > prevAbs * 1.2
-            || (abs >= NOTCH_MIN_DELTA && Math.abs(abs - prevAbs) < 1));
+            || (abs >= NOTCH_MIN_DELTA && Math.abs(abs - prevAbs) < 1
+                && sinceLast >= NOTCH_MIN_GAP_MS));
 
         if (dominantX) {
             this.bottomAccum = 0;
