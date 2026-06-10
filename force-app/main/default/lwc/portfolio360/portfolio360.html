@@ -16,5 +16,15 @@
         <div class={morePanelClass} data-tab="more" role="region" aria-label="More">
             <c-portfolio-items></c-portfolio-items>
         </div>
+
+        <nav lwc:if={showPagerNav} class="pager-nav" aria-label="Section pager">
+            <button lwc:if={prevLabel} class="pager-btn" type="button" onclick={handlePrev}>
+                ← {prevLabel}
+            </button>
+            <span class="pager-spacer"></span>
+            <button lwc:if={nextLabel} class="pager-btn pager-next" type="button" onclick={handleNext}>
+                {nextLabel} →
+            </button>
+        </nav>
     </div>
 </template>

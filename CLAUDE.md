@@ -62,13 +62,12 @@ object allowlist, never granted to the guest profile.
 plus `portfolioItems` for the dynamic sections) each with loading/empty/error states. Composition is a **horizontal
 pager**: `portfolio360` shows ONE page at a time (height = content, no reserved-viewport
 gaps) and switches with a horizontal slide (entering page slides from the direction of
-travel). Pages flip via dock clicks, horizontal trackpad scroll (dominant deltaX,
-cooldown-throttled), touch swipe (`touch-action: pan-y` keeps vertical scroll native),
-or **vertical scroll past the page bottom** (wheel or upward swipe at the end advances
-to the next tab in order — going back is horizontal/dock only). Wheel paging is
-impulse-gated AND post-flip LATCHED (fullPage.js-style): after any flip, wheel input
-is swallowed until the kinetic stream goes silent (~250ms gap; 1.1s hard cap), so
-leftover trackpad inertia can never chain a second flip. **Returning to the true top (scrollY < 48)
+travel). Pages flip DETERMINISTICALLY only: dock clicks,
+the Next/Prev glass pager buttons at the end of every page, clearly-horizontal wheel
+gestures (2x dominance + post-flip latch), or horizontal touch swipes. **Vertical
+scrolling never flips pages** — kinetic-device intent detection proved unreliable
+across hardware (five iterations of heuristics; see git history), so it was removed
+deliberately. Returning to the true top (scrollY < 48) still resets to the first tab. **Returning to the true top (scrollY < 48)
 resets the pager to the first tab** so scrolling down restarts the sequence — the zone
 is small on purpose: short pages live at low scrollY and a generous zone hijacks their
 up-scrolls. Wheel/touch paging listens at WINDOW level — flips must never depend on
