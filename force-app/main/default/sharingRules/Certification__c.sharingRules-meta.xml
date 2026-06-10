@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingGuestRules>
+        <fullName>Portfolio_Guest_Read_Active</fullName>
+        <accessLevel>Read</accessLevel>
+        <criteriaItems>
+            <field>Is_Active__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </criteriaItems>
+        <label>Portfolio Guest Read Active</label>
+        <sharedTo>
+            <guestUser>Portfolio</guestUser>
+        </sharedTo>
+    </sharingGuestRules>
+</SharingRules>

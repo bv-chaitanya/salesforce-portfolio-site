@@ -50,7 +50,7 @@ Everything renders from records — content updates happen by editing records, n
 - [x] Phase 1 — resume analysis + schema approved
 - [x] Phase 2 — objects, Apex, tests (deployed 2026-06-10; 16/16 pass, controller 100% coverage)
 - [x] Phase 3 — LWCs (deployed)
-- [ ] Phase 4 — guest access config (needs site to exist first — see decision 5)
+- [x] Phase 4 — guest access config (deployed 2026-06-10: guest profile read-only perms, no Phone FLS, 7 guest sharing rules `Is_Active__c=TRUE → Read`, site name `Portfolio`)
 - [ ] Phase 5 — data load (parsed content review → anonymous Apex insert)
 - [ ] Phase 6 — manual site creation + page composition checklist
 
