@@ -1,0 +1,14 @@
+<template>
+    <nav class="dock" aria-label="Portfolio sections">
+        <template for:each={items} for:item="item">
+            <button
+                key={item.id}
+                class={item.cls}
+                type="button"
+                data-id={item.id}
+                data-selector={item.selector}
+                onclick={handleClick}
+            >{item.label}</button>
+        </template>
+    </nav>
+</template>

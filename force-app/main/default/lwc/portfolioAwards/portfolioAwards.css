@@ -1,17 +1,20 @@
 :host {
     --ink: #1e293b;
-    --muted: #64748b;
+    --muted: #5b6b80;
     --accent: #0b5cab;
-    --accent-soft: #e8f1fb;
-    --border: #e2e8f0;
-    --card: #ffffff;
+    --accent-2: #1589ee;
+    --glass-bg: rgba(255, 255, 255, 0.62);
+    --glass-border: rgba(255, 255, 255, 0.75);
+    --glass-shadow: 0 8px 28px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    --glass-shadow-hover: 0 16px 40px rgba(11, 92, 171, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     display: block;
 }
 
+/* Extra bottom padding clears the floating dock */
 .section {
     max-width: 52rem;
     margin: 0 auto;
-    padding: 2rem 1.25rem 3rem;
+    padding: 2rem 1.25rem 8rem;
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
@@ -21,6 +24,17 @@
     font-weight: 800;
     letter-spacing: -0.01em;
     margin: 0 0 1.5rem;
+    color: #0f172a;
+}
+
+.section-title::before {
+    content: '';
+    display: block;
+    width: 2.75rem;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    margin-bottom: 0.6rem;
 }
 
 .list {
@@ -35,17 +49,25 @@
     display: flex;
     gap: 0.9rem;
     align-items: flex-start;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
     padding: 1rem 1.1rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow-hover);
 }
 
 .year {
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--accent);
-    background: var(--accent-soft);
+    background: rgba(11, 92, 171, 0.1);
+    border: 1px solid rgba(11, 92, 171, 0.16);
     border-radius: 999px;
     padding: 0.25rem 0.7rem;
     flex-shrink: 0;
@@ -71,32 +93,12 @@
 
 @media (min-width: 768px) {
     .section {
-        padding: 2.5rem 2rem 3.5rem;
+        padding: 2.5rem 2rem 8.5rem;
     }
 }
 
-/* --- polish pass --- */
-.section-title {
-    color: #0f172a;
-}
-
-.section-title::before {
-    content: '';
-    display: block;
-    width: 2.75rem;
-    height: 4px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #0b5cab, #1589ee);
-    margin-bottom: 0.6rem;
-}
-
-.card {
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 26px rgba(11, 92, 171, 0.12);
-    border-color: #bcd6f0;
+@media (prefers-reduced-motion: reduce) {
+    .card {
+        transition: none;
+    }
 }

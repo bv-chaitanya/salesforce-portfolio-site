@@ -1,10 +1,12 @@
 :host {
     --ink: #1e293b;
-    --muted: #64748b;
+    --muted: #5b6b80;
     --accent: #0b5cab;
-    --accent-soft: #e8f1fb;
-    --border: #e2e8f0;
-    --card: #ffffff;
+    --accent-2: #1589ee;
+    --glass-bg: rgba(255, 255, 255, 0.62);
+    --glass-border: rgba(255, 255, 255, 0.75);
+    --glass-shadow: 0 8px 28px rgba(15, 23, 42, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    --glass-shadow-hover: 0 16px 40px rgba(11, 92, 171, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.9);
     display: block;
 }
 
@@ -21,6 +23,17 @@
     font-weight: 800;
     letter-spacing: -0.01em;
     margin: 0 0 1.5rem;
+    color: #0f172a;
+}
+
+.section-title::before {
+    content: '';
+    display: block;
+    width: 2.75rem;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    margin-bottom: 0.6rem;
 }
 
 .timeline {
@@ -32,7 +45,7 @@
 .job {
     position: relative;
     padding: 0 0 2rem 1.75rem;
-    border-left: 2px solid var(--border);
+    border-left: 2px solid rgba(11, 92, 171, 0.18);
     margin-left: 0.5rem;
 }
 
@@ -47,9 +60,9 @@
     width: 0.875rem;
     height: 0.875rem;
     border-radius: 50%;
-    background: var(--accent);
-    border: 3px solid #ffffff;
-    box-shadow: 0 0 0 2px var(--accent);
+    background: var(--accent-2);
+    border: 3px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 2px var(--accent-2), 0 0 14px rgba(21, 137, 238, 0.55);
 }
 
 .job-header {
@@ -76,11 +89,18 @@
 }
 
 .project {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: var(--glass-shadow);
     padding: 1rem 1.1rem;
     margin-top: 0.75rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.project:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow-hover);
 }
 
 .project-name {
@@ -97,7 +117,8 @@
     font-size: 0.75rem;
     font-weight: 600;
     color: var(--accent);
-    background: var(--accent-soft);
+    background: rgba(11, 92, 171, 0.1);
+    border: 1px solid rgba(11, 92, 171, 0.16);
     border-radius: 999px;
     padding: 0.15rem 0.6rem;
 }
@@ -125,9 +146,9 @@
 .chip {
     font-size: 0.75rem;
     font-weight: 500;
-    color: var(--ink);
-    background: #f1f5f9;
-    border: 1px solid var(--border);
+    color: #28415e;
+    background: rgba(11, 92, 171, 0.07);
+    border: 1px solid rgba(11, 92, 171, 0.14);
     border-radius: 999px;
     padding: 0.2rem 0.65rem;
     white-space: nowrap;
@@ -161,42 +182,8 @@
     }
 }
 
-/* --- polish pass --- */
-.section-title {
-    color: #0f172a;
-}
-
-.section-title::before {
-    content: '';
-    display: block;
-    width: 2.75rem;
-    height: 4px;
-    border-radius: 999px;
-    background: linear-gradient(90deg, #0b5cab, #1589ee);
-    margin-bottom: 0.6rem;
-}
-
-.job {
-    border-left: 2px solid #d7e3f4;
-}
-
-.job-marker {
-    background: #1589ee;
-    box-shadow: 0 0 0 2px #1589ee, 0 0 12px rgba(21, 137, 238, 0.55);
-}
-
-.project {
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-.project:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 26px rgba(11, 92, 171, 0.12);
-    border-color: #bcd6f0;
-}
-
-.chip {
-    background: #eef4fb;
-    border-color: #d7e3f4;
+@media (prefers-reduced-motion: reduce) {
+    .project {
+        transition: none;
+    }
 }

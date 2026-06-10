@@ -25,6 +25,12 @@
                   "children": [
                     {
                       "attributes": {},
+                      "definition": "c:portfolioNav",
+                      "id": "96c19ea9-d762-4290-b7c2-853cfd850528",
+                      "type": "component"
+                    },
+                    {
+                      "attributes": {},
                       "definition": "c:portfolioHero",
                       "id": "4ebe3195-7fde-4bd1-b017-1b91f052036b",
                       "type": "component"

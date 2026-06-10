@@ -1,0 +1,29 @@
+<template>
+    <div class="wrap">
+        <nav class="tabbar" role="tablist" aria-label="Portfolio sections">
+            <template for:each={tabs} for:item="tab">
+                <button
+                    key={tab.id}
+                    class={tab.cssClass}
+                    data-id={tab.id}
+                    role="tab"
+                    aria-selected={tab.selected}
+                    onclick={handleTabClick}
+                >{tab.label}</button>
+            </template>
+        </nav>
+        <div class={experiencePanelClass} role="tabpanel">
+            <c-portfolio-experience hide-title="true"></c-portfolio-experience>
+        </div>
+        <div class={skillsPanelClass} role="tabpanel">
+            <c-portfolio-skills hide-title="true"></c-portfolio-skills>
+        </div>
+        <div class={certificationsPanelClass} role="tabpanel">
+            <c-portfolio-certifications hide-title="true"></c-portfolio-certifications>
+        </div>
+        <div class={educationPanelClass} role="tabpanel">
+            <c-portfolio-education></c-portfolio-education>
+            <c-portfolio-awards></c-portfolio-awards>
+        </div>
+    </div>
+</template>

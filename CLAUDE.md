@@ -33,8 +33,11 @@ Everything renders from records — content updates happen by editing records, n
    DTOs). Record visibility for guests comes from criteria-based guest sharing rules;
    FLS comes from the guest profile. Skill splitting happens in Apex, not JS.
 4. **LWC**: one component per section (hero, experience timeline w/ nested projects,
-   skills, certifications, education, awards). Custom mobile-first CSS, no SLDS utility
-   classes (LWR doesn't load full SLDS), no external JS. Rich text renders via
+   skills, certifications, education, awards) plus `portfolioNav` — a floating liquid-glass
+   dock fixed bottom-center with IntersectionObserver scroll-spy (progressive enhancement;
+   selectors target the section host elements, e.g. `c-portfolio-hero`). Liquid-glass design system: gradient mesh page background (site styles.css),
+   translucent cards (rgba white + inset highlight — backdrop-filter only on the dock and
+   hero summary for performance), custom mobile-first CSS, no SLDS utilities, no external JS. Rich text renders via
    `lightning-formatted-rich-text` (LWR-supported base component). Every component has
    loading/empty/error states.
 5. **Guest access** (Phase 4): the site guest user profile + guest sharing rules can only

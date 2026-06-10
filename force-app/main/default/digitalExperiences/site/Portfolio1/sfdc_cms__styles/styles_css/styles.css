@@ -1,5 +1,5 @@
 /*
- * Global site styles
+ * Global site styles — liquid glass backdrop
  */
 html,
 body {
@@ -7,12 +7,27 @@ body {
 }
 
 html {
-    background: #f6f8fb;
+    background: #eef2f9;
 }
 
 body {
     margin: 0;
-    background: #f6f8fb;
+    min-height: 100%;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    background:
+        radial-gradient(42rem 30rem at 12% -6%, rgba(99, 164, 255, 0.28), transparent 60%),
+        radial-gradient(36rem 28rem at 90% 10%, rgba(167, 139, 250, 0.18), transparent 60%),
+        radial-gradient(50rem 34rem at 50% 108%, rgba(56, 189, 248, 0.18), transparent 60%),
+        #eef2f9;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
 }
