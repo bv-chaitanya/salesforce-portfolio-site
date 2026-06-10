@@ -22,8 +22,8 @@
     padding: 0.4rem;
     border-radius: 999px;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.52));
-    backdrop-filter: blur(22px) saturate(180%);
-    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
     border: 1px solid rgba(255, 255, 255, 0.75);
     box-shadow:
         0 14px 44px rgba(15, 23, 42, 0.2),
@@ -57,7 +57,7 @@
 }
 
 .nav-btn.active {
-    background: linear-gradient(135deg, #0b5cab, #1589ee);
+    background: #0b5cab;
     color: #ffffff;
     box-shadow:
         0 4px 14px rgba(11, 92, 171, 0.45),
@@ -72,5 +72,12 @@
 @media (prefers-reduced-motion: reduce) {
     .nav-btn {
         transition: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .dock {
+        backdrop-filter: blur(10px) saturate(160%);
+        -webkit-backdrop-filter: blur(10px) saturate(160%);
     }
 }
