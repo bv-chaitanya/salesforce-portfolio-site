@@ -7,6 +7,7 @@ const NAVIGATE_EVENT = 'portfolio360navigate';
 // Fired by this component whenever the visible page changes; the dock follows.
 const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const TABS = ['experience', 'skills', 'certifications', 'education', 'more'];
+
 const WHEEL_COOLDOWN_MS = 450;
 // silence longer than this marks a brand-new gesture
 const GESTURE_GAP_MS = 250;
@@ -16,7 +17,10 @@ const NOTCH_MIN_DELTA = 40;
 // the page is "at its end" once inside this zone (content ends ~120px of
 // dock-clearance padding above the hard bottom)
 const BOTTOM_ZONE_PX = 160;
-// continued scroll distance inside the zone that flips without a new impulse
+// page start counts as visible while the wrap top is at/below this offset
+const TOP_EDGE_PX = -8;
+// continued scroll distance inside a boundary zone that flips without a
+// fresh impulse
 const OVERSHOOT_PX = 160;
 const SWIPE_MIN_PX = 60;
 // truly back at the top (hero) — small on purpose: short pages live at low
@@ -30,12 +34,13 @@ export default class Portfolio360 extends LightningElement {
     lastWheelEventAt = 0;
     lastAbsDelta = 0;
     bottomAccum = 0;
-    profileId = null;
-    hasMoreItems = false;
+    topAccum = 0;
     prevScrollY = 0;
     scrollTicking = false;
     touchStartX = 0;
     touchStartY = 0;
+    profileId = null;
+    hasMoreItems = false;
 
     profilesKnownEmpty = false;
 
@@ -53,13 +58,13 @@ export default class Portfolio360 extends LightningElement {
         }
     }
 
+    get siteHasProfiles() {
+        return !this.profilesKnownEmpty;
+    }
+
     // 'more' is only navigable when dynamic items exist — never page onto a blank
     get availableTabs() {
         return this.hasMoreItems ? TABS : TABS.slice(0, -1);
-    }
-
-    get siteHasProfiles() {
-        return !this.profilesKnownEmpty;
     }
 
     connectedCallback() {
@@ -92,30 +97,20 @@ export default class Portfolio360 extends LightningElement {
     }
 
     disconnectedCallback() {
-        if (this.boundNavigate) {
-            window.removeEventListener(NAVIGATE_EVENT, this.boundNavigate);
-            this.boundNavigate = undefined;
-        }
-        if (this.boundScroll) {
-            window.removeEventListener('scroll', this.boundScroll);
-            this.boundScroll = undefined;
-        }
-        if (this.boundProfileChange) {
-            window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
-            this.boundProfileChange = undefined;
-        }
-        if (this.boundWheel) {
-            window.removeEventListener('wheel', this.boundWheel);
-            this.boundWheel = undefined;
-        }
-        if (this.boundTouchStart) {
-            window.removeEventListener('touchstart', this.boundTouchStart);
-            this.boundTouchStart = undefined;
-        }
-        if (this.boundTouchEnd) {
-            window.removeEventListener('touchend', this.boundTouchEnd);
-            this.boundTouchEnd = undefined;
-        }
+        const cleanup = [
+            [NAVIGATE_EVENT, 'boundNavigate'],
+            ['portfolioprofilechange', 'boundProfileChange'],
+            ['scroll', 'boundScroll'],
+            ['wheel', 'boundWheel'],
+            ['touchstart', 'boundTouchStart'],
+            ['touchend', 'boundTouchEnd']
+        ];
+        cleanup.forEach(([name, prop]) => {
+            if (this[prop]) {
+                window.removeEventListener(name, this[prop]);
+                this[prop] = undefined;
+            }
+        });
     }
 
     queueScrollCheck() {
@@ -130,12 +125,12 @@ export default class Portfolio360 extends LightningElement {
         });
     }
 
-    // coming back up to the hero restarts the sequence: the next scroll-down
-    // reads from the FIRST tab again instead of wherever the visitor left off
+    // coming back up to the very top restarts the sequence: the next
+    // scroll-down reads from the FIRST tab again
     onScrollFrame() {
         const y = window.scrollY;
         if (y < TOP_ZONE_PX && this.prevScrollY >= TOP_ZONE_PX && this.activeTab !== TABS[0]) {
-            this.switchTo(TABS[0], false);
+            this.switchTo(TABS[0], { animate: false, land: 'keep' });
         }
         this.prevScrollY = y;
     }
@@ -145,7 +140,7 @@ export default class Portfolio360 extends LightningElement {
         this.switchTo(tabId);
     }
 
-    switchTo(tabId, animate = true) {
+    switchTo(tabId, { animate = true, land = 'top' } = {}) {
         if (!this.availableTabs.includes(tabId) || tabId === this.activeTab) {
             return;
         }
@@ -161,21 +156,25 @@ export default class Portfolio360 extends LightningElement {
         } catch {
             // ignore — see above
         }
-        this.ensureTopVisible();
-    }
-
-    step(direction) {
-        const tabs = this.availableTabs;
-        const index = tabs.indexOf(this.activeTab) + direction;
-        if (index >= 0 && index < tabs.length) {
-            this.switchTo(tabs[index]);
+        if (land === 'top') {
+            this.ensureTopVisible();
+        } else if (land === 'bottom') {
+            this.landAtBottom();
         }
     }
 
-    // horizontal trackpad/mouse-tilt scrolling flips pages; vertical scrolling
-    // past the END of a page advances to the next tab in order. A flip needs a
-    // HUMAN IMPULSE: a fresh gesture after silence, a RISING delta (trackpad
-    // inertia only decays), or a constant large notch (discrete mouse wheel).
+    step(direction, land = 'top') {
+        const tabs = this.availableTabs;
+        const index = tabs.indexOf(this.activeTab) + direction;
+        if (index >= 0 && index < tabs.length) {
+            this.switchTo(tabs[index], { land });
+        }
+    }
+
+    // horizontal scrolling flips pages; vertical scrolling past a page
+    // BOUNDARY pages forward/back. A flip needs a HUMAN IMPULSE (fresh
+    // gesture, rising delta — inertia only decays — or a constant mouse
+    // notch) or enough continued in-zone scroll distance.
     handleWheel(event) {
         const now = Date.now();
         const sinceLast = now - this.lastWheelEventAt;
@@ -195,23 +194,40 @@ export default class Portfolio360 extends LightningElement {
 
         if (dominantX) {
             this.bottomAccum = 0;
+            this.topAccum = 0;
             if (impulse && !coolingDown) {
                 this.lastFlipAt = now;
                 this.step(deltaX > 0 ? 1 : -1);
             }
             return;
         }
-        if (deltaY <= 0 || !this.isAtPageBottom()) {
-            this.bottomAccum = 0;
+        if (deltaY > 0) {
+            this.topAccum = 0;
+            if (!this.isAtPageBottom()) {
+                this.bottomAccum = 0;
+                return;
+            }
+            this.bottomAccum += deltaY;
+            if (!coolingDown && (impulse || this.bottomAccum > OVERSHOOT_PX)) {
+                this.lastFlipAt = now;
+                this.bottomAccum = 0;
+                this.step(1, 'top');
+            }
             return;
         }
-        // inside the bottom zone: a fresh impulse OR enough continued scroll
-        // distance from the same gesture flips — one flip max, then cooldown
-        this.bottomAccum += deltaY;
-        if (!coolingDown && (impulse || this.bottomAccum > OVERSHOOT_PX)) {
-            this.lastFlipAt = now;
+        if (deltaY < 0) {
             this.bottomAccum = 0;
-            this.step(1);
+            if (!this.isAtPageTop()) {
+                this.topAccum = 0;
+                return;
+            }
+            this.topAccum += -deltaY;
+            if (!coolingDown && (impulse || this.topAccum > OVERSHOOT_PX)) {
+                this.lastFlipAt = now;
+                this.topAccum = 0;
+                // previous page, landing at its bottom for scroll continuity
+                this.step(-1, 'bottom');
+            }
         }
     }
 
@@ -235,7 +251,11 @@ export default class Portfolio360 extends LightningElement {
         } else if (deltaY < -SWIPE_MIN_PX && Math.abs(deltaY) > Math.abs(deltaX)
             && this.isAtPageBottom()) {
             // swiping up at the end of a page moves to the next one
-            this.step(1);
+            this.step(1, 'top');
+        } else if (deltaY > SWIPE_MIN_PX && Math.abs(deltaY) > Math.abs(deltaX)
+            && this.isAtPageTop()) {
+            // swiping down at the start of a page moves back one
+            this.step(-1, 'bottom');
         }
     }
 
@@ -244,11 +264,30 @@ export default class Portfolio360 extends LightningElement {
         return window.innerHeight + window.scrollY >= doc.scrollHeight - BOTTOM_ZONE_PX;
     }
 
+    isAtPageTop() {
+        const wrap = this.template.querySelector('.wrap');
+        return Boolean(wrap) && wrap.getBoundingClientRect().top >= TOP_EDGE_PX;
+    }
+
     ensureTopVisible() {
         const wrap = this.template.querySelector('.wrap');
         if (wrap && wrap.getBoundingClientRect().top < 0) {
             wrap.scrollIntoView({ behavior: this.preferredBehavior(), block: 'start' });
         }
+    }
+
+    landAtBottom() {
+        // double rAF: wait for the re-render before measuring the new height
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        requestAnimationFrame(() => {
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            requestAnimationFrame(() => {
+                const doc = document.documentElement;
+                const top = Math.max(0, doc.scrollHeight - window.innerHeight - 4);
+                window.scrollTo({ top, behavior: 'auto' });
+                this.prevScrollY = window.scrollY;
+            });
+        });
     }
 
     preferredBehavior() {

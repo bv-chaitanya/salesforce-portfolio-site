@@ -31,6 +31,11 @@ function visibleTabs(element) {
 }
 
 describe('c-portfolio360', () => {
+    beforeAll(() => {
+        Element.prototype.scrollIntoView = jest.fn();
+        window.scrollTo = jest.fn();
+    });
+
     afterEach(() => {
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
@@ -163,6 +168,21 @@ describe('c-portfolio360', () => {
         await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
         expect(visibleTabs(element)).toEqual(['experience']);
+    });
+
+    it('pages BACK one tab when scrolling up at the page top', async () => {
+        const element = create();
+        window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'certifications' } }));
+        await flush();
+        // mid-document (not at bottom), wrap top at 0 (jsdom default) = page top visible
+        Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
+        Object.defineProperty(window, 'scrollY', { value: 100, configurable: true });
+        Object.defineProperty(document.documentElement, 'scrollHeight', { value: 3000, configurable: true });
+
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: -200, deltaX: 0 }));
+        await flush();
+
+        expect(visibleTabs(element)).toEqual(['skills']);
     });
 
     it('never pages onto an empty More tab', async () => {
