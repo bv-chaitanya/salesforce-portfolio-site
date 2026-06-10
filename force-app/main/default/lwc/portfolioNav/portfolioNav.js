@@ -4,6 +4,7 @@ import getItemSections from '@salesforce/apex/PortfolioController.getItemSection
 
 // Consumed by c-portfolio360, which swaps its panels in response.
 const NAVIGATE_EVENT = 'portfolio360navigate';
+const TAB_IN_VIEW_EVENT = 'portfolio360tabinview';
 const ITEMS = [
     { id: 'about', label: 'About' },
     { id: 'experience', label: 'Experience' },
@@ -14,7 +15,6 @@ const ITEMS = [
 const TAB_IDS = new Set(['experience', 'skills', 'certifications', 'education', 'more']);
 const MORE_ITEM = { id: 'more', label: 'More' };
 const HERO_SELECTOR = 'c-portfolio-hero';
-const PANEL_SELECTOR = 'c-portfolio360';
 // the big hero name sits ~240px into the hero — reveal the chip as it exits
 const NAME_REVEAL_OFFSET_PX = 240;
 
@@ -73,6 +73,14 @@ export default class PortfolioNav extends LightningElement {
             this.profileId = event.detail.profileId;
         };
         window.addEventListener('portfolioprofilechange', this.boundProfileChange);
+        this.boundTabInView = (event) => {
+            const tabId = event.detail && event.detail.tabId;
+            if (TAB_IDS.has(tabId) && window.scrollY >= 140) {
+                this.activeId = tabId;
+                this.lastTabId = tabId;
+            }
+        };
+        window.addEventListener(TAB_IN_VIEW_EVENT, this.boundTabInView);
         this.queueScrollUpdate();
     }
 
@@ -88,6 +96,10 @@ export default class PortfolioNav extends LightningElement {
         if (this.boundProfileChange) {
             window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
             this.boundProfileChange = undefined;
+        }
+        if (this.boundTabInView) {
+            window.removeEventListener(TAB_IN_VIEW_EVENT, this.boundTabInView);
+            this.boundTabInView = undefined;
         }
     }
 
@@ -124,8 +136,8 @@ export default class PortfolioNav extends LightningElement {
             return;
         }
         this.lastTabId = id;
+        // portfolio360 scrolls the right panel into view itself
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: id } }));
-        this.scrollTo(PANEL_SELECTOR);
     }
 
     handleNameClick() {

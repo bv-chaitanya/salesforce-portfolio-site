@@ -1,19 +1,19 @@
 <template>
     <div lwc:if={siteHasProfiles} class="wrap">
-        <div class={experiencePanelClass} role="tabpanel">
+        <div class="panel" data-tab="experience" role="region" aria-label="Experience">
             <c-portfolio-experience></c-portfolio-experience>
         </div>
-        <div class={skillsPanelClass} role="tabpanel">
+        <div class="panel" data-tab="skills" role="region" aria-label="Skills">
             <c-portfolio-skills></c-portfolio-skills>
         </div>
-        <div class={certificationsPanelClass} role="tabpanel">
+        <div class="panel" data-tab="certifications" role="region" aria-label="Certifications">
             <c-portfolio-certifications></c-portfolio-certifications>
         </div>
-        <div class={educationPanelClass} role="tabpanel">
+        <div class="panel" data-tab="education" role="region" aria-label="Education and Awards">
             <c-portfolio-education></c-portfolio-education>
             <c-portfolio-awards></c-portfolio-awards>
         </div>
-        <div class={morePanelClass} role="tabpanel">
+        <div class="panel" data-tab="more" role="region" aria-label="More">
             <c-portfolio-items></c-portfolio-items>
         </div>
     </div>

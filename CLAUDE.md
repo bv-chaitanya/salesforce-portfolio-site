@@ -56,14 +56,18 @@ object allowlist, never granted to the guest profile.
 
 **Public site LWCs**: section components (`portfolioHero`, `portfolioExperience`,
 `portfolioSkills`, `portfolioCertifications`, `portfolioEducation`, `portfolioAwards`)
-each with loading/empty/error states and an `@api hideTitle`. Composition is a tabbed
-360 view: `portfolio360` holds the panels (hash deep links `#experience` etc.);
+each with loading/empty/error states and an `@api hideTitle`. Composition is a **scroll-snap
+flow**: `portfolio360` stacks the panels in tab order (CSS `scroll-snap-type: y
+proximity` on html; each panel `scroll-snap-align: start`, ~viewport min-height) so
+scrolling settles tab by tab. It owns an IntersectionObserver that broadcasts
+`portfolio360tabinview` window events (+ hash sync) as panels cross the viewport band;
 `portfolioProfileSwitcher` — floating LEFT glass rail of circular avatar tabs, shown
 only when 2+ profiles are active; clicking broadcasts `portfolioprofilechange` window
 events and every profile-aware component (hero, nav chip, all sections) re-queries.
-`portfolioNav` — the floating liquid-glass bottom dock — is the single nav: dispatches
-`portfolio360navigate` window events, sliding active-pill indicator (FLIP transform),
-scroll-spy ("About" only when `scrollY < 140`), and a name chip that appears when the
+`portfolioNav` — the floating liquid-glass bottom dock — dispatches
+`portfolio360navigate` (portfolio360 scrolls the panel into view itself), follows
+`portfolio360tabinview` broadcasts (ignored when `scrollY < 140` — About wins at top),
+sliding active-pill indicator (FLIP transform), and a name chip that appears when the
 hero name scrolls out. Rich text renders via `lightning-formatted-rich-text`.
 
 **Design system (liquid glass)**: vivid pastel mesh + hard-edged discs live in the

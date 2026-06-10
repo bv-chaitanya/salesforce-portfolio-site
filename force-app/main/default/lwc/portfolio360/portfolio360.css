@@ -9,28 +9,14 @@
     padding: 0 0 7.5rem;
 }
 
+/* stacked snap flow: scrolling settles tab by tab; the dock spies along */
 .panel {
-    min-height: calc(100vh - 14rem);
-    animation: fade-in 0.25s ease;
+    min-height: calc(100vh - 12rem);
+    scroll-snap-align: start;
+    scroll-margin-top: 0.75rem;
 }
 
-.panel.hidden {
-    display: none;
-}
-
-@keyframes fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: none;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .panel {
-        animation: none;
-    }
+/* the "more" panel may be empty (dock hides its item) — don't reserve a page */
+.panel[data-tab='more'] {
+    min-height: 0;
 }

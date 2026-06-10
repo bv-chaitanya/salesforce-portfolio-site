@@ -133,6 +133,26 @@ describe('c-portfolio-nav', () => {
         expect(labels[5]).toBe('More');
     });
 
+    it('follows portfolio360 tab-in-view broadcasts while scrolled', async () => {
+        const element = await create();
+        setScrollY(600);
+
+        window.dispatchEvent(new CustomEvent('portfolio360tabinview', { detail: { tabId: 'skills' } }));
+        await flush();
+
+        expect(activeLabel(element)).toBe('Skills');
+    });
+
+    it('ignores tab-in-view broadcasts near the top (About wins)', async () => {
+        const element = await create();
+        setScrollY(0);
+
+        window.dispatchEvent(new CustomEvent('portfolio360tabinview', { detail: { tabId: 'skills' } }));
+        await flush();
+
+        expect(activeLabel(element)).toBe('About');
+    });
+
     it('returns to About at the top of the page and hides the chip', async () => {
         addHeroStub({ top: 0, bottom: 700 });
         const element = await create();

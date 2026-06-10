@@ -10,17 +10,18 @@ jest.mock(
     { virtual: true }
 );
 
-
 const NAVIGATE_EVENT = 'portfolio360navigate';
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-function panelClasses(element) {
-    return Array.from(element.shadowRoot.querySelectorAll('[role="tabpanel"]')).map(
-        (panel) => panel.className
-    );
-}
-
 describe('c-portfolio360', () => {
+    beforeAll(() => {
+        Element.prototype.scrollIntoView = jest.fn();
+    });
+
+    beforeEach(() => {
+        Element.prototype.scrollIntoView.mockClear();
+    });
+
     afterEach(() => {
         while (document.body.firstChild) {
             document.body.removeChild(document.body.firstChild);
@@ -34,44 +35,42 @@ describe('c-portfolio360', () => {
         return element;
     }
 
-    it('shows the experience panel by default and hides the rest', () => {
+    it('renders all five panels stacked in tab order', () => {
         const element = create();
 
-        const classes = panelClasses(element);
-        expect(classes[0]).toBe('panel');
-        expect(classes.slice(1)).toEqual(['panel hidden', 'panel hidden', 'panel hidden', 'panel hidden']);
+        const panels = element.shadowRoot.querySelectorAll('.panel');
+        expect(Array.from(panels).map((panel) => panel.dataset.tab)).toEqual([
+            'experience', 'skills', 'certifications', 'education', 'more'
+        ]);
     });
 
-    it('opens the tab from the URL hash deep link', () => {
-        window.location.hash = '#certifications';
-
-        const element = create();
-
-        const classes = panelClasses(element);
-        expect(classes[2]).toBe('panel');
-        expect(classes[0]).toBe('panel hidden');
-    });
-
-    it('switches panels when the dock dispatches a navigate event', async () => {
-        const element = create();
-        const replaceState = jest.spyOn(window.history, 'replaceState');
+    it('scrolls the matching panel when the dock dispatches navigate', async () => {
+        create();
 
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'skills' } }));
         await flush();
 
-        const classes = panelClasses(element);
-        expect(classes[1]).toBe('panel');
-        expect(classes[0]).toBe('panel hidden');
-        expect(replaceState).toHaveBeenCalledWith(null, '', '#skills');
+        expect(Element.prototype.scrollIntoView).toHaveBeenCalledTimes(1);
     });
 
     it('ignores unknown tab ids', async () => {
-        const element = create();
+        create();
 
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'bogus' } }));
         await flush();
 
-        expect(panelClasses(element)[0]).toBe('panel');
+        expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
+    });
+
+    it('lands on the deep-linked panel from the URL hash', async () => {
+        window.location.hash = '#certifications';
+
+        create();
+        await flush();
+
+        expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(
+            expect.objectContaining({ behavior: 'auto' })
+        );
     });
 
     it('stops listening after disconnect', async () => {
@@ -81,8 +80,6 @@ describe('c-portfolio360', () => {
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'skills' } }));
         await flush();
 
-        // re-attach and confirm state never moved off the default
-        document.body.appendChild(element);
-        expect(panelClasses(element)[0]).toBe('panel');
+        expect(Element.prototype.scrollIntoView).not.toHaveBeenCalled();
     });
 });
