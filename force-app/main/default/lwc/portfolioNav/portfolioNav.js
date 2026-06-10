@@ -17,6 +17,8 @@ const MORE_ITEM = { id: 'more', label: 'More' };
 const HERO_SELECTOR = 'c-portfolio-hero';
 // the big hero name sits ~240px into the hero — reveal the chip as it exits
 const NAME_REVEAL_OFFSET_PX = 240;
+// matches portfolio360's home zone
+const TOP_ZONE_PX = 48;
 
 export default class PortfolioNav extends LightningElement {
     activeId = 'about';
@@ -77,7 +79,7 @@ export default class PortfolioNav extends LightningElement {
             const tabId = event.detail && event.detail.tabId;
             if (TAB_IDS.has(tabId)) {
                 this.lastTabId = tabId;
-                if (window.scrollY >= 140) {
+                if (window.scrollY >= TOP_ZONE_PX) {
                     this.activeId = tabId;
                 }
             }
@@ -179,7 +181,7 @@ export default class PortfolioNav extends LightningElement {
         // "About" only when genuinely back at the top — short panels can't
         // scroll the hero fully away, and hero-visibility checks stole the
         // active state right back after a tab click.
-        if (window.scrollY < 140) {
+        if (window.scrollY < TOP_ZONE_PX) {
             this.activeId = 'about';
         } else if (this.activeId === 'about') {
             this.activeId = this.lastTabId;

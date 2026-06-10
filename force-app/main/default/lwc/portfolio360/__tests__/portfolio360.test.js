@@ -96,12 +96,11 @@ describe('c-portfolio360', () => {
 
     it('flips pages on a horizontal swipe', async () => {
         const element = create();
-        const wrap = element.shadowRoot.querySelector('.wrap');
 
-        wrap.dispatchEvent(new TouchEvent('touchstart', {
+        window.dispatchEvent(new TouchEvent('touchstart', {
             touches: [{ clientX: 300, clientY: 100 }]
         }));
-        wrap.dispatchEvent(new TouchEvent('touchend', {
+        window.dispatchEvent(new TouchEvent('touchend', {
             changedTouches: [{ clientX: 120, clientY: 110 }]
         }));
         await flush();
@@ -111,12 +110,11 @@ describe('c-portfolio360', () => {
 
     it('advances to the next page when scrolling down at the page bottom', async () => {
         const element = create();
-        const wrap = element.shadowRoot.querySelector('.wrap');
         Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
         Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
         Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
 
-        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
         await flush();
 
         expect(visibleTabs(element)).toEqual(['skills']);
@@ -124,16 +122,15 @@ describe('c-portfolio360', () => {
 
     it('ignores momentum events — one gesture flips one page', async () => {
         const element = create();
-        const wrap = element.shadowRoot.querySelector('.wrap');
         Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
         Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
         Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
 
-        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
         await flush();
         // inertial tail: rapid follow-up events from the same gesture
-        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, deltaX: 0 }));
-        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 60, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 40, deltaX: 0 }));
         await flush();
 
         expect(visibleTabs(element)).toEqual(['skills']);
@@ -141,12 +138,11 @@ describe('c-portfolio360', () => {
 
     it('does not advance on vertical scroll mid-page', async () => {
         const element = create();
-        const wrap = element.shadowRoot.querySelector('.wrap');
         Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
         Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
         Object.defineProperty(document.documentElement, 'scrollHeight', { value: 3000, configurable: true });
 
-        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 80, deltaX: 0 }));
         await flush();
 
         expect(visibleTabs(element)).toEqual(['experience']);
@@ -173,12 +169,11 @@ describe('c-portfolio360', () => {
         const element = create();
         window.dispatchEvent(new CustomEvent(NAVIGATE_EVENT, { detail: { tabId: 'education' } }));
         await flush();
-        const wrap = element.shadowRoot.querySelector('.wrap');
         Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true });
         Object.defineProperty(window, 'scrollY', { value: 200, configurable: true });
         Object.defineProperty(document.documentElement, 'scrollHeight', { value: 1000, configurable: true });
 
-        wrap.dispatchEvent(new WheelEvent('wheel', { deltaY: 200, deltaX: 0 }));
+        window.dispatchEvent(new WheelEvent('wheel', { deltaY: 200, deltaX: 0 }));
         await flush();
 
         expect(visibleTabs(element)).toEqual(['education']);

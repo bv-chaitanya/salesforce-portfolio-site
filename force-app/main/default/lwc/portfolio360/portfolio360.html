@@ -1,11 +1,5 @@
 <template>
-    <div
-        lwc:if={siteHasProfiles}
-        class="wrap"
-        onwheel={handleWheel}
-        ontouchstart={handleTouchStart}
-        ontouchend={handleTouchEnd}
-    >
+    <div lwc:if={siteHasProfiles} class="wrap">
         <div class={experiencePanelClass} data-tab="experience" role="region" aria-label="Experience">
             <c-portfolio-experience></c-portfolio-experience>
         </div>

@@ -19,8 +19,9 @@ const BOTTOM_ZONE_PX = 160;
 // continued scroll distance inside the zone that flips without a new impulse
 const OVERSHOOT_PX = 160;
 const SWIPE_MIN_PX = 60;
-// scrolled into this zone = back at the hero ("About"); the page sequence restarts
-const TOP_ZONE_PX = 140;
+// truly back at the top (hero) — small on purpose: short pages live at low
+// scrollY values, so a generous zone would hijack their up-scrolls
+const TOP_ZONE_PX = 48;
 
 export default class Portfolio360 extends LightningElement {
     activeTab = TABS[0];
@@ -79,6 +80,15 @@ export default class Portfolio360 extends LightningElement {
         this.prevScrollY = window.scrollY;
         this.boundScroll = () => this.queueScrollCheck();
         window.addEventListener('scroll', this.boundScroll, { passive: true });
+        // window-level input: page flips must not depend on which element the
+        // cursor/finger happens to be over (the hero fills half the viewport
+        // on short pages)
+        this.boundWheel = (event) => this.handleWheel(event);
+        window.addEventListener('wheel', this.boundWheel, { passive: true });
+        this.boundTouchStart = (event) => this.handleTouchStart(event);
+        window.addEventListener('touchstart', this.boundTouchStart, { passive: true });
+        this.boundTouchEnd = (event) => this.handleTouchEnd(event);
+        window.addEventListener('touchend', this.boundTouchEnd, { passive: true });
     }
 
     disconnectedCallback() {
@@ -93,6 +103,18 @@ export default class Portfolio360 extends LightningElement {
         if (this.boundProfileChange) {
             window.removeEventListener('portfolioprofilechange', this.boundProfileChange);
             this.boundProfileChange = undefined;
+        }
+        if (this.boundWheel) {
+            window.removeEventListener('wheel', this.boundWheel);
+            this.boundWheel = undefined;
+        }
+        if (this.boundTouchStart) {
+            window.removeEventListener('touchstart', this.boundTouchStart);
+            this.boundTouchStart = undefined;
+        }
+        if (this.boundTouchEnd) {
+            window.removeEventListener('touchend', this.boundTouchEnd);
+            this.boundTouchEnd = undefined;
         }
     }
 
