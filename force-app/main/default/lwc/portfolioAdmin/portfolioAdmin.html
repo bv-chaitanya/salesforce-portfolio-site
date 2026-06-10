@@ -129,6 +129,11 @@
                                         >
                                             <span class="rec-name slds-truncate">{item.name}</span>
                                             <lightning-badge
+                                                lwc:if={item.unlinked}
+                                                label="Unlinked"
+                                                class="slds-theme_warning"
+                                            ></lightning-badge>
+                                            <lightning-badge
                                                 lwc:if={item.inactive}
                                                 label="Inactive"
                                                 class="slds-badge_inverse"

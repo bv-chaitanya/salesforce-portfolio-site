@@ -93,10 +93,13 @@ export default class PortfolioAdmin extends LightningElement {
     }
 
     get listItems() {
+        const isProject = this.activeObject === 'Project__c';
         return (this.records || []).map((record) => ({
             id: record.Id,
             name: record.Name,
             inactive: record.Is_Active__c === false,
+            unlinked: !this.isProfileTab
+                && (isProject ? !record.Job__c : !record.Profile__c),
             cls: record.Id === this.selectedId
                 ? 'rec slds-p-around_x-small slds-grid slds-grid_align-spread selected'
                 : 'rec slds-p-around_x-small slds-grid slds-grid_align-spread'

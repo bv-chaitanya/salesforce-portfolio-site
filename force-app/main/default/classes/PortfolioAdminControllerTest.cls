@@ -11,7 +11,8 @@ private class PortfolioAdminControllerTest {
         insert new List<Award__c>{
             new Award__c(Name = 'Second', Profile__c = profiles[0].Id, Display_Order__c = 2, Is_Active__c = true),
             new Award__c(Name = 'First', Profile__c = profiles[0].Id, Display_Order__c = 1, Is_Active__c = false),
-            new Award__c(Name = 'Alt Award', Profile__c = profiles[1].Id, Display_Order__c = 1, Is_Active__c = true)
+            new Award__c(Name = 'Alt Award', Profile__c = profiles[1].Id, Display_Order__c = 1, Is_Active__c = true),
+            new Award__c(Name = 'Stray Award', Display_Order__c = 9, Is_Active__c = true)
         };
 
         Experience__c mainJob = new Experience__c(Name = 'Main Job', Profile__c = profiles[0].Id,
@@ -31,17 +32,19 @@ private class PortfolioAdminControllerTest {
     }
 
     @IsTest
-    static void returnsAllRecordsIncludingInactiveInOrderForProfile() {
+    static void returnsProfileRecordsPlusUnlinkedStrays() {
         List<SObject> rows = PortfolioAdminController.getRecords('Award__c', idOf('Main'));
 
-        Assert.areEqual(2, rows.size(), 'Scoped to the working profile, inactive included');
+        Assert.areEqual(3, rows.size(), 'Working profile records + unlinked strays, inactive included');
         Assert.areEqual('First', rows[0].get('Name'), 'Ordered by Display_Order__c');
         Assert.areEqual(false, rows[0].get('Is_Active__c'), 'Inactive record returned');
+        Assert.areEqual('Stray Award', rows[2].get('Name'), 'Unlinked record always surfaces');
+        Assert.isNull(rows[2].get('Profile__c'), 'Link field returned for badging');
     }
 
     @IsTest
     static void nullProfileReturnsEverything() {
-        Assert.areEqual(3, PortfolioAdminController.getRecords('Award__c', null).size(),
+        Assert.areEqual(4, PortfolioAdminController.getRecords('Award__c', null).size(),
             'No profile filter -> all records');
         Assert.areEqual(2, PortfolioAdminController.getRecords('Portfolio_Profile__c', idOf('Main')).size(),
             'Profile object itself is never profile-filtered');
