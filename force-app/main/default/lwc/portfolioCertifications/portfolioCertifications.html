@@ -1,0 +1,30 @@
+<template>
+    <section class="section">
+        <h2 class="section-title">Certifications</h2>
+        <template lwc:if={isReady}>
+            <div class="grid">
+                <template for:each={certifications} for:item="cert">
+                    <div key={cert.key} class="card">
+                        <div class="badge">✓</div>
+                        <div class="card-body">
+                            <h3 class="cert-name">{cert.name}</h3>
+                            <p lwc:if={cert.issuer} class="cert-issuer">{cert.issuer}</p>
+                            <div class="cert-footer">
+                                <span lwc:if={cert.status} class="pill">{cert.status}</span>
+                                <a
+                                    lwc:if={cert.credentialUrl}
+                                    class="verify"
+                                    href={cert.credentialUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >Verify →</a>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <p lwc:elseif={isError} class="state">Certifications are unavailable right now.</p>
+        <p lwc:elseif={isEmpty} class="state">No certifications published yet.</p>
+    </section>
+</template>

@@ -1,0 +1,18 @@
+<template>
+    <section class="section">
+        <h2 class="section-title">Education</h2>
+        <template lwc:if={isReady}>
+            <ul class="list">
+                <template for:each={entries} for:item="entry">
+                    <li key={entry.key} class="card">
+                        <h3 class="degree">{entry.degree}</h3>
+                        <p lwc:if={entry.institution} class="institution">{entry.institution}</p>
+                        <p lwc:if={entry.location} class="location">{entry.location}</p>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <p lwc:elseif={isError} class="state">Education is unavailable right now.</p>
+        <p lwc:elseif={isEmpty} class="state">No education published yet.</p>
+    </section>
+</template>

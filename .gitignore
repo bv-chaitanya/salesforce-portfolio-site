@@ -1,0 +1,18 @@
+# Salesforce / SFDX
+.sf/
+.sfdx/
+.localdevserver/
+deploy-options.json
+
+# Resumes contain personal contact details — never publish with the repo
+resumes/
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# Logs
+*.log

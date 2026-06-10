@@ -1,0 +1,20 @@
+<template>
+    <section class="section">
+        <h2 class="section-title">Awards &amp; Recognition</h2>
+        <template lwc:if={isReady}>
+            <ul class="list">
+                <template for:each={awards} for:item="award">
+                    <li key={award.key} class="card">
+                        <span lwc:if={award.year} class="year">{award.year}</span>
+                        <div>
+                            <h3 class="title">{award.title}</h3>
+                            <p lwc:if={award.description} class="description">{award.description}</p>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <p lwc:elseif={isError} class="state">Awards are unavailable right now.</p>
+        <p lwc:elseif={isEmpty} class="state">No awards published yet.</p>
+    </section>
+</template>

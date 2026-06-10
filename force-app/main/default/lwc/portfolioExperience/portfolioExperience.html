@@ -1,0 +1,48 @@
+<template>
+    <section class="section">
+        <h2 class="section-title">Experience</h2>
+        <template lwc:if={isReady}>
+            <ol class="timeline">
+                <template for:each={jobs} for:item="job">
+                    <li key={job.key} class="job">
+                        <div class="job-marker"></div>
+                        <header class="job-header">
+                            <h3 class="job-title">{job.title}</h3>
+                            <p class="job-company">{job.company}</p>
+                            <p class="job-meta">
+                                <span class="job-dates">{job.dateRange}</span>
+                                <span lwc:if={job.location} class="job-location">· {job.location}</span>
+                            </p>
+                        </header>
+                        <template for:each={job.projects} for:item="project">
+                            <article key={project.key} class="project">
+                                <h4 class="project-name">
+                                    {project.name}
+                                    <span lwc:if={project.client} class="project-client">{project.client}</span>
+                                </h4>
+                                <div lwc:if={project.description} class="project-description">
+                                    <lightning-formatted-rich-text value={project.description}></lightning-formatted-rich-text>
+                                </div>
+                                <p lwc:if={project.impact} class="project-impact">{project.impact}</p>
+                                <div lwc:if={project.techList.length} class="project-tech">
+                                    <template for:each={project.techList} for:item="tech">
+                                        <span key={tech.key} class="chip">{tech.label}</span>
+                                    </template>
+                                </div>
+                                <a
+                                    lwc:if={project.projectUrl}
+                                    class="project-link"
+                                    href={project.projectUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >View project →</a>
+                            </article>
+                        </template>
+                    </li>
+                </template>
+            </ol>
+        </template>
+        <p lwc:elseif={isError} class="state">Experience is unavailable right now.</p>
+        <p lwc:elseif={isEmpty} class="state">No experience published yet.</p>
+    </section>
+</template>

@@ -1,0 +1,37 @@
+<template>
+    <section class="hero">
+        <template lwc:if={isReady}>
+            <div class="avatar">
+                <template lwc:if={showPhoto}>
+                    <img
+                        class="avatar-img"
+                        src={profile.photoUrl}
+                        alt={profile.fullName}
+                        onerror={handlePhotoError}
+                    />
+                </template>
+                <template lwc:else>
+                    <span class="avatar-initials">{initials}</span>
+                </template>
+            </div>
+            <h1 class="name">{profile.fullName}</h1>
+            <p lwc:if={profile.headline} class="headline">{profile.headline}</p>
+            <p lwc:if={profile.location} class="location">{profile.location}</p>
+            <div class="links">
+                <a lwc:if={mailtoHref} class="btn btn-solid" href={mailtoHref}>Email me</a>
+                <a
+                    lwc:if={profile.linkedInUrl}
+                    class="btn btn-outline"
+                    href={profile.linkedInUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >LinkedIn</a>
+            </div>
+            <div lwc:if={profile.summary} class="summary">
+                <lightning-formatted-rich-text value={profile.summary}></lightning-formatted-rich-text>
+            </div>
+        </template>
+        <p lwc:elseif={isError} class="state">Profile is unavailable right now.</p>
+        <p lwc:elseif={isEmpty} class="state">No profile published yet.</p>
+    </section>
+</template>
