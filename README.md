@@ -49,7 +49,7 @@ controller can't leak it by design.
 
 Tests: [`PortfolioControllerTest`](force-app/main/default/classes/PortfolioControllerTest.cls) —
 filtering, ordering, nesting, delimiter parsing, and empty-data paths. 100% coverage
-on both controllers, 33 LWC Jest tests, and zero ESLint problems under the official
+on both controllers, 40 LWC Jest tests, and zero ESLint problems under the official
 `@salesforce/eslint-config-lwc` ruleset.
 
 Content is managed through an internal **Portfolio Content Manager** app page —
@@ -60,10 +60,11 @@ edit forms and auto-linked new records — so updating the portfolio never touch
 
 One component per section — hero, experience timeline (with nested project cards),
 skills, certifications, education, awards, and a dynamic-sections renderer. Navigation
-is a **bidirectional scroll pager**: one page at a time, sliding horizontally; scrolling
-past a page's end advances to the next tab, scrolling up at a page's start goes back one
-(landing at its bottom for continuity), with impulse detection that ignores trackpad
-inertia. Dock clicks, horizontal scroll, and touch swipes all page too. Mobile-first
+is a **deterministic pager**: one page at a time, sliding horizontally, driven by
+explicit controls — the glass dock, Next/Prev pager buttons, horizontal trackpad
+scroll, and touch swipes. Vertical scrolling only scrolls the current page, never
+flips it (a decision validated by a device-physics simulation in
+[`scripts/pager-simulation.mjs`](scripts/pager-simulation.mjs)). Mobile-first
 custom CSS (LWR sites don't load full SLDS, so no utility-class dependence), zero
 external JavaScript libraries, and loading/empty/error states in every component.
 
